@@ -1,7 +1,7 @@
 module mem_register
 (
     input clk,
-    input load,
+    input load
     /* inputs */
     input lc3b_word ex_address,
 	 input lc3b_word ex_next_instr,
@@ -25,6 +25,7 @@ module mem_register
 //address
 register #(.width(16)) address
 (
+
     .clk,
     .load,
     .ex_address,
@@ -93,3 +94,6 @@ register #(.width(1)) valid
     .ex_valid,
     .mem_valid
 );
+
+endmodule : mem_register
+

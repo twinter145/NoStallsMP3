@@ -1,7 +1,7 @@
 module wb_register
 (
     input clk,
-    input load,
+    input load
 	 /* inputs */
     input lc3b_word mem_address,
 	 input lc3b_word mem_rdata,
@@ -104,3 +104,5 @@ register #(.width(1)) valid
     .mem_valid,
     .wb_valid
 );
+endmodule : wb_register
+
