@@ -22,7 +22,6 @@ module datapath
 );
 
 //internal signals
-lc3b_word wb_mux_out;
 
 //internal signals
 lc3b_word plus2_out;
@@ -128,42 +127,101 @@ cc CC
 );
 
 
-
 //execute
 
 
-//memory
+/* memory */
+//internal signals
+lc3b_word mem_address;
+lc3b_word mem_rdata;
+lc3b_word mem_next_instr;
+lc3b_control mem_control_sig;
+logic [2:0] mem_cc;
+lc3b_word mem_alu_out in;
+lc3b_word mem_ir in;
+lc3b_reg mem_dest;
+logic [1:0] mem_valid;
+
+//logic
 mem_register mem_register 
 (
-	.clk
-	.load
+	.clk,
+	.load,
+	//inputs
+	.ex_address(),
+	.ex_next_instr(),
+	.ex_control_sig(),
+	.ex_cc(),
+	.ex_alu_out(),
+	.ex_ir(),
+	.ex_dest(),
+	.ex_valid(),
+	//outputs
+	.mem_address(),
+	.mem_next_instr(),
+	.mem_control_sig(),
+	.mem_cc(),
+	.mem_alu_out(mem_wdata),
+	.mem_ir(),
+	.mem_dest(),
+	.mem_valid(),
 );
 
-memory memory
-(
-);
+/* write back */
+//internal signals
+lc3b_word wb_address;
+lc3b_word wb_rdata;
+lc3b_word wb_next_instr;
+lc3b_control wb_control_sig;
+logic [2:0] wb_cc;
+lc3b_word wb_alu_out;
+lc3b_word wb_ir;
+lc3b_reg wb_dest;
+wb_valid;
 
-//write back
+lc3b_word wb_mux_out;
+
+//logic
 wb_register wb_regsiter
 (
 	.clk,
 	.load,
+	//inputs
+	.mem_address(mem_address),
+	.mem_rdata(mem_rdata),
+	.mem_next_instr(),
+	.mem_control_sig(),
+	.mem_cc(),
+	.mem_alu_out(mem_wdata),
+	.mem_ir(),
+	.mem_dest(),
+	.mem_valid(),
+	//outputs
+	.wb_address(),
+	.wb_rdata(),
+	.wb_next_instr(),
+	.wb_control_sig(),
+	.wb_cc(),
+	.wb_alu_out(),
+	.wb_ir(),
+	.wb_dest(),
+	.wb_valid(),
 );
 
 mux4 wb_mux
 (
 	.sel(wb_mux_sel),
-	.a(wb_address_out),
-	.b(wb_rdata_out),
-	.c(wb_next_instr_out),
-	.d(wb_alu_out),
+	.a(wb_address),
+	.b(wb_rdata),
+	.c(wb_next_instr),
+	.d(wb_alu),
 	.f(wb_mux_out)
 );
 
 gencc gencc
 (
 	.in(wb_mux_out),
-	.out(gencc_out)
+	.out(wb_cc)
 );
 
 endmodule : datapath
