@@ -7,8 +7,8 @@ module mem_register
 	 input lc3b_word ex_next_instr,
 	 input lc3b_control ex_control_sig,
 	 input [2:0] ex_cc,
-	 input lc3b_word ex_alu_out in,
-	 input lc3b_word ex_ir in,
+	 input lc3b_word ex_alu_out,
+	 input lc3b_word ex_ir,
 	 input lc3b_reg ex_dest,
 	 input [1:0] ex_valid,
 	 /* outputs */
@@ -16,8 +16,8 @@ module mem_register
 	 output lc3b_word mem_next_instr,
 	 output lc3b_control mem_control_sig,
 	 output [2:0] mem_cc,
-	 output lc3b_word mem_alu_out in,
-	 output lc3b_word mem_ir in,
+	 output lc3b_word mem_alu_out,
+	 output lc3b_word mem_ir,
 	 output lc3b_reg mem_dest,
 	 output mem_valid,
 );
