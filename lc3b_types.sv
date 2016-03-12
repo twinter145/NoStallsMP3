@@ -19,10 +19,19 @@ typedef logic [2:0] lc3b_mux8_sel;
 typedef struct packed {
 	lc3b_opcode opcode;
 	lc3b_aluop aluop;
+	//register load
 	logic load_cc;
 	logic load_regfile;
+	logic load_pc;
+	//mux select
 	logic wb_mux_sel;
-	//other signals
+	lc3b_mux_sel pc_mux_sel;
+	logic instrsr1_mux_sel;
+	lc3b_mux_sel offset_mux_sel;
+	logic dest_mux_sel;
+	logic address_mux_sel;
+	logic sr_mux_sel;
+	logic immsr2_mux_sel;
 } lc3b_control;
 
 typedef enum bit [3:0] {
