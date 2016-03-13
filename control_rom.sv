@@ -27,31 +27,47 @@ begin
 	ctrl.offset_mux_sel = 0;
 	ctrl.dest_mux_sel = 0;
 	ctrl.address_mux_sel = 1;
-	ctrl.sr_mux_sel = 0;
+	ctrl.sr2_mux_sel = 0;
 	ctrl.immsr2_mux_sel = 1;
+	ctrl.load_regfile = 0;
+	ctrl.read_memory = 0;
+	ctrl.write_memory = 0;
 	case(ctrl.opcode)
 		op_add: begin//
 			ctrl.aluop = alu_add;
-			sr2_mux_sel = 0;
-			immsr2_mux_sel = ir5;
+			ctrl.sr2_mux_sel = 0;
+			ctrl.immsr2_mux_sel = ir5;
+			ctrl.wb_mux_sel = 3;
+			ctrl.load_regfile = 1;
 		end
 		
 		op_and: begin//
 			ctrl.aluop = alu_and;
-			sr2_mux_sel = 0;
-			immsr2_mux_sel = ir5;
+			ctrl.sr2_mux_sel = 0;
+			ctrl.immsr2_mux_sel = ir5;
+			ctrl.wb_mux_sel = 3;//alu_out
+			ctrl.load_regfile = 1;
 		end
 		
 		op_not: begin//
+			ctrl.aluop = alu_not;
+			ctrl.wb_mux_sel = 3;//alu_out
+			ctrl.load_regfile = 1;
 		end
 		
 		op_br: begin//
+			ctrl.wb_mux_sel = 0;//??
 		end
 		
 		op_ldr: begin//
+			ctrl.wb_mux_sel = 1;//wb_rdata
+			ctrl.read_memory = 1;
+			ctrl.load_regfile = 1;
 		end
 		
 		op_str: begin//
+			ctrl.wb_mux_sel = 0;//??
+			ctrl.write_memory = 1;
 		end
 		
 		op_jmp: begin

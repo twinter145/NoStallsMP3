@@ -1,7 +1,8 @@
+import lc3b_types::*;
+
 module mem_register
 (
     input clk,
-    input load
     /* inputs */
     input lc3b_word ex_address,
 	 input lc3b_word ex_next_instr,
@@ -10,7 +11,7 @@ module mem_register
 	 input lc3b_word ex_alu_out,
 	 input lc3b_word ex_ir,
 	 input lc3b_reg ex_dest,
-	 input [1:0] ex_valid,
+	 input ex_valid,
 	 /* outputs */
     output lc3b_word mem_address,
 	 output lc3b_word mem_next_instr,
@@ -19,7 +20,7 @@ module mem_register
 	 output lc3b_word mem_alu_out,
 	 output lc3b_word mem_ir,
 	 output lc3b_reg mem_dest,
-	 output mem_valid,
+	 output mem_valid
 );
 
 //address
@@ -27,72 +28,72 @@ register #(.width(16)) address
 (
 
     .clk,
-    .load,
-    .ex_address,
-    .mem_address
+    .load(clk),
+    .in(ex_address),
+    .out(mem_address)
 );
 
 //next_instr
 register #(.width(16)) next_instr
 (
     .clk,
-    .load,
-    .ex_next_instr,
-    .mem_next_instr
+    .load(clk),
+    .in(ex_next_instr),
+    .out(mem_next_instr)
 );
 
 //control signal
-register #(.width(1)) control_signal
+register #(.width(40)) control_signal
 (
     .clk,
-    .load,
-    .ex_control_signal,
-    .mem_control_signal
+    .load(clk),
+    .in(ex_control_sig),
+    .out(mem_control_sig)
 );
 
 //cc
 register #(.width(3)) cc
 (
     .clk,
-    .load,
-    .ex_cc,
-    .mem_cc
+    .load(clk),
+    .in(ex_cc),
+    .out(mem_cc)
 );
 
 //alu out
 register #(.width(16)) alu_out
 (
     .clk,
-    .load,
-    .ex_alu_out,
-    .mem_alu_out
+    .load(clk),
+    .in(ex_alu_out),
+    .out(mem_alu_out)
 );
 
 //ir
 register #(.width(16)) ir
 (
     .clk,
-    .load,
-    .ex_ir,
-    .mem_ir
+    .load(clk),
+    .in(ex_ir),
+    .out(mem_ir)
 );
 
 //dest
 register #(.width(3)) dest
 (
     .clk,
-    .load,
-    .ex_dest,
-    .mem_dest
+    .load(clk),
+    .in(ex_dest),
+    .out(mem_dest)
 );
 
 //valid
 register #(.width(1)) valid
 (
     .clk,
-    .load,
-    .ex_valid,
-    .mem_valid
+    .load(clk),
+    .in(ex_valid),
+    .out(mem_valid)
 );
 
 endmodule : mem_register
