@@ -40,7 +40,7 @@ lc3b_control de_control_sig; //worry about size later
 lc3b_reg destmux_out, sr2_mux_out, de_dest, src1, src2;
 lc3b_word de_next_instr, de_sr1, de_sr2, de_ir;
 lc3b_opcode de_opcode;
-logic de_valid_out, de_ir5, de_ir11;
+logic de_valid, de_ir5, de_ir11;
 //execute
 lc3b_control ex_control_sig;
 lc3b_word ex_next_instr, ex_address, ex_alu_out, ex_ir, ex_sr1, ex_sr2;
@@ -61,6 +61,8 @@ logic wb_valid, wb_load_cc, wb_load_reg;
 
 assign mem_wmask_a = 2'b11;
 assign mem_wmask_b = 2'b11;
+assign mem_wdata_a = 16'b0;
+assign mem_write_a = 1'b0;
 
 //instruction port
 assign mem_address_a = pc_out;

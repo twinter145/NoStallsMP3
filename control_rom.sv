@@ -39,6 +39,7 @@ begin
 			ctrl.immsr2_mux_sel = ir5;
 			ctrl.wb_mux_sel = 3;
 			ctrl.load_regfile = 1;
+			
 		end
 		
 		op_and: begin//
@@ -57,17 +58,20 @@ begin
 		
 		op_br: begin//
 			ctrl.wb_mux_sel = 0;//??
+			ctrl.offset_mux_sel = 2;
 		end
 		
 		op_ldr: begin//
 			ctrl.wb_mux_sel = 1;//wb_rdata
 			ctrl.read_memory = 1;
 			ctrl.load_regfile = 1;
+			ctrl.offset_mux_sel = 1;
 		end
 		
 		op_str: begin//
 			ctrl.wb_mux_sel = 0;//??
 			ctrl.write_memory = 1;
+			ctrl.offset_mux_sel = 1;
 		end
 		
 		op_jmp: begin
