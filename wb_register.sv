@@ -18,7 +18,7 @@ module wb_register
 	 output lc3b_word wb_rdata,
 	 output lc3b_word wb_next_instr,
 	 output lc3b_control wb_control_sig,
-	 output [2:0] wb_cc,
+	 //output [2:0] wb_cc,
 	 output lc3b_word wb_alu_out,
 	 output lc3b_word wb_ir,
 	 output lc3b_reg wb_dest,
@@ -60,7 +60,7 @@ register #(.width(40)) control_signal
     .in(mem_control_sig),
     .out(wb_control_sig)
 );
-
+/*
 //cc
 register #(.width(3)) cc
 (
@@ -69,7 +69,7 @@ register #(.width(3)) cc
     .in(mem_cc),
     .out(wb_cc)
 );
-
+*/
 //alu out
 register #(.width(16)) alu_out
 (

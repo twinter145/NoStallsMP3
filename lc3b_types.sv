@@ -68,6 +68,7 @@ typedef struct packed {
 	logic immsr2_mux_sel;
 	logic read_memory;
 	logic write_memory;
+	lc3b_word ir;
 } lc3b_control;
 
 endpackage : lc3b_types

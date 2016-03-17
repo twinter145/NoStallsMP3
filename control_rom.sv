@@ -39,7 +39,7 @@ begin
 			ctrl.immsr2_mux_sel = ir5;
 			ctrl.wb_mux_sel = 3;
 			ctrl.load_regfile = 1;
-			
+			ctrl.load_cc = 1;
 		end
 		
 		op_and: begin//
@@ -48,12 +48,14 @@ begin
 			ctrl.immsr2_mux_sel = ir5;
 			ctrl.wb_mux_sel = 3;//alu_out
 			ctrl.load_regfile = 1;
+			ctrl.load_cc = 1;
 		end
 		
 		op_not: begin//
 			ctrl.aluop = alu_not;
 			ctrl.wb_mux_sel = 3;//alu_out
 			ctrl.load_regfile = 1;
+			ctrl.load_cc = 1;
 		end
 		
 		op_br: begin//
@@ -67,6 +69,7 @@ begin
 			ctrl.load_regfile = 1;
 			ctrl.offset_mux_sel = 1;
 			ctrl.instrsr1_mux_sel = 1;
+			ctrl.load_cc = 1;
 		end
 		
 		op_str: begin//
