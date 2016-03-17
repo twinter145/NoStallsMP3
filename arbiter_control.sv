@@ -4,7 +4,6 @@ module arbiter_control
 (
 	input clk,
 	
-	input I_write,
 	input I_read,
 	
 	input D_write,
@@ -12,6 +11,8 @@ module arbiter_control
 	
 	input L2_resp,
 	
+	output logic L2_write,
+	output logic L2_read,
 	output logic I_resp_en,
 	output logic D_resp_en,
 	output logic cache_select
@@ -20,8 +21,8 @@ module arbiter_control
 enum int unsigned {
    /* List of states */
 	idle,
-	D_cache_rw,
-	I_cache_rw
+	I_cache_r,
+	D_cache_rw
 } state, next_state;
 
 always_comb
@@ -30,6 +31,8 @@ begin : state_actions
 	cache_select = 1'b0;
 	I_resp_en = 1'b0;
 	D_resp_en = 1'b0;
+	L2_write = 1'b0;
+	L2_read = 1'b0;
 	
 	case(state)
 		idle: begin
@@ -38,11 +41,16 @@ begin : state_actions
 		D_cache_rw: begin
 			D_resp_en = 1;
 			cache_select = 1;
+			if(D_read == 1'b1)
+				L2_read = 1;
+			else
+				L2_write = 1;
 		end
 		
-		I_cache_rw: begin
+		I_cache_r: begin
 			I_resp_en = 1;
 			cache_select = 0;
+			L2_read = 1;
 		end
 		
 		default: /* Do nothing */;
@@ -57,15 +65,15 @@ begin : next_state_logic
 
 	case(state)
 		idle: begin
-			if((I_read == 1'b1) || (I_write == 1'b1))
-				next_state = I_cache_rw;
+			if(I_read == 1'b1)
+				next_state = I_cache_r;
 			else if((D_read == 1'b1) || (D_write == 1'b1))
 				next_state = D_cache_rw;
 		end
 		
-		I_cache_rw: begin
+		I_cache_r: begin
 			if(L2_resp == 1'b0)
-				next_state = I_cache_rw;
+				next_state = I_cache_r;
 			else if((D_read == 1'b1) || (D_write == 1'b1))
 				next_state = D_cache_rw;
 			else
@@ -75,8 +83,8 @@ begin : next_state_logic
 		D_cache_rw: begin
 			if(L2_resp == 1'b0)
 				next_state = D_cache_rw;
-			else if((I_read == 1'b1) || (I_write == 1'b1))
-				next_state = I_cache_rw;
+			else if(I_read == 1'b1)
+				next_state = I_cache_r;
 			else
 				next_state = idle;
 		end

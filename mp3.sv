@@ -45,6 +45,36 @@ datapath datapath
 	.mem_wdata_b(mem_wdata_b)
 );
 
-//cache???
+//cache
+arbiter ID_arbiter
+(
+	.clk(clk),
+	.I_address(),
+	.I_read(),
+	.I_rdata(),
+	.I_resp(),
+	.D_wdata(),
+	.D_address(),
+	.D_read(),
+	.D_write(),
+	.D_rdata(),
+	.D_resp(),
+	.L2_rdata(),
+	.L2_resp(),
+	.L2_wdata(),
+	.L2_address(),
+	.L2_read(),
+	.L2_write()
+);
+
+I_cache instruction_cache
+(
+	.clk(clk),
+	.address(),
+	.I_rdata(),
+	.rdata(),
+	.I_read(),
+	.resp()
+);
 
 endmodule : mp3
