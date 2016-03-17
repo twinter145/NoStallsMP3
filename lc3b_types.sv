@@ -16,23 +16,10 @@ typedef logic  [1:0] lc3b_mem_wmask;
 typedef logic [1:0] lc3b_mux_sel;
 typedef logic [2:0] lc3b_mux8_sel;
 
-typedef struct packed {
-	lc3b_opcode opcode;
-	lc3b_aluop aluop;
-	//register load
-	logic load_cc;
-	logic load_regfile;
-	logic load_pc;
-	//mux select
-	logic wb_mux_sel;
-	lc3b_mux_sel pc_mux_sel;
-	logic instrsr1_mux_sel;
-	lc3b_mux_sel offset_mux_sel;
-	logic dest_mux_sel;
-	logic address_mux_sel;
-	logic sr_mux_sel;
-	logic immsr2_mux_sel;
-} lc3b_control;
+typedef logic [127:0] lc3b_line;
+typedef logic [8:0] lc3b_c_tag;
+typedef logic [2:0] lc3b_c_index;
+typedef logic [2:0] lc3b_c_offset;
 
 typedef enum bit [3:0] {
     op_add  = 4'b0001,
@@ -62,5 +49,25 @@ typedef enum bit [3:0] {
     alu_srl,
     alu_sra
 } lc3b_aluop;
+
+typedef struct packed {
+	lc3b_opcode opcode;
+	lc3b_aluop aluop;
+	//register load
+	logic load_cc;
+	logic load_regfile;
+	logic load_pc;
+	//mux select
+	lc3b_mux_sel wb_mux_sel;
+	lc3b_mux_sel pc_mux_sel;
+	logic instrsr1_mux_sel;
+	lc3b_mux_sel offset_mux_sel;
+	logic dest_mux_sel;
+	logic address_mux_sel;
+	logic sr2_mux_sel;
+	logic immsr2_mux_sel;
+	logic read_memory;
+	logic write_memory;
+} lc3b_control;
 
 endpackage : lc3b_types

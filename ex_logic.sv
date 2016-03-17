@@ -2,7 +2,7 @@ import lc3b_types::*;
 
 module ex_logic
 (
-	input lc3b_control ex_control_signal,
+	input lc3b_control ex_control_sig,
 	input lc3b_word ex_next_instruction,
 	input lc3b_word ex_ir,
 	input lc3b_word ex_sr1,
@@ -13,6 +13,7 @@ module ex_logic
 );
 
 lc3b_word instrsr1mux_out;
+lc3b_word immsr2mux_out;
 lc3b_word offsetmux_out;
 lc3b_word adj6_out;
 lc3b_word adj9_out;
@@ -22,9 +23,11 @@ lc3b_word zext8_out;
 lc3b_word addressmux_out;
 lc3b_word sext5_out;
 
+assign ex_address = addressmux_out;
+
 mux2 instrsr1mux
 (
-	.sel(), // from control word
+	.sel(ex_control_sig.instrsr1_mux_sel), // from control word
 	.a(ex_next_instruction),
 	.b(ex_sr1),
 	.f(instrsr1mux_out)
@@ -32,7 +35,7 @@ mux2 instrsr1mux
 
 mux4 offsetmux
 (
-	.sel(), // from control word
+	.sel(ex_control_sig.offset_mux_sel), // from control word
 	.a(16'b0),
 	.b(adj6_out),
 	.c(adj9_out),
@@ -73,7 +76,7 @@ zext zext8
 
 mux2 addressmux
 (
-	.sel(), // from control word
+	.sel(ex_control_sig.address_mux_sel), // from control word
 	.a(zext8_out),
 	.b(offsetadder_out),
 	.f(addressmux_out)
@@ -87,7 +90,7 @@ sext #(.width(5)) sext5
 
 mux2 immsr2mux
 (
-	.sel(), // from control word
+	.sel(ex_control_sig.immsr2_mux_sel), // from control word
 	.a(ex_sr2),
 	.b(sext5_out),
 	.f(immsr2mux_out)
@@ -95,7 +98,7 @@ mux2 immsr2mux
 
 alu ALU
 (
-	.aluop(), // from control word
+	.aluop(ex_control_sig.aluop), // from control word
 	.a(ex_sr1),
 	.b(immsr2mux_out),
 	.f(ex_alu_out)
