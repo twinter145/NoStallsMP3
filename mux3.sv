@@ -1,3 +1,5 @@
+import lc3b_types::*;
+
 //creates 4 input mux, sets up output
 module mux3 #(parameter width = 16)
 (
@@ -14,4 +16,5 @@ case(sel)
 	2: f = c;
 	3: f = 0;
 endcase
+
 endmodule : mux3
