@@ -12,5 +12,6 @@ case(sel)
 	0: f = a;
 	1: f = b;
 	2: f = c;
+	3: f = 0;
 endcase
 endmodule : mux3
