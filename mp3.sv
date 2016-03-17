@@ -44,7 +44,7 @@ datapath datapath
 	.mem_address_b(mem_address_b),
 	.mem_wdata_b(mem_wdata_b)
 );
-
+/*
 //cache
 arbiter ID_arbiter
 (
@@ -76,5 +76,6 @@ I_cache instruction_cache
 	.I_read(),
 	.resp()
 );
+*/
 
 endmodule : mp3
