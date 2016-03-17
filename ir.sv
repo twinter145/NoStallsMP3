@@ -31,6 +31,7 @@ end
 
 always_comb
 begin
+	out = data;
 	opcode = lc3b_opcode'(data[15:12]);
 
 	dest = data[11:9];

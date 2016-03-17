@@ -94,7 +94,7 @@ fetch_logic fetch_logic
 	.out(pcmux_sel)
 );
 
-mux4 pcmux
+mux3 pcmux
 (
 	.sel(pcmux_sel),
 	.a(plus2_out),
@@ -285,7 +285,7 @@ wb_register wb_regsiter
 	.wb_rdata(wb_rdata),
 	.wb_next_instr(wb_next_instr),
 	.wb_control_sig(wb_control_sig),
-	//.wb_cc(wb_cc),
+	.wb_cc(wb_cc),
 	.wb_alu_out(wb_alu_out),
 	.wb_ir(wb_ir),
 	.wb_dest(wb_dest),
@@ -305,7 +305,7 @@ mux4 wb_mux
 gencc gencc
 (
 	.in(wb_data_in),
-	.out(wb_cc)
+	.out(gencc_out)
 );
 
 assign wb_load_cc = wb_control_sig.load_cc&wb_valid;
