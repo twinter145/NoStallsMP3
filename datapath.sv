@@ -158,7 +158,7 @@ mux2 #(.width(3))destmux
 	.f(destmux_out)
 );
 */
-/*
+
 cc CC
 (
 	 .clk,
@@ -166,7 +166,8 @@ cc CC
 	 .load_cc(wb_load_cc),
     .out(cc_out)
 );
-*/
+
+/*
 register #(.width(3)) cc
 (
 	.clk,
@@ -174,7 +175,7 @@ register #(.width(3)) cc
 	.in(wb_cc),
 	.out(cc_out)
 );
-
+*/
 regfile regfile
 (
 	//in
@@ -285,7 +286,7 @@ wb_register wb_regsiter
 	.wb_rdata(wb_rdata),
 	.wb_next_instr(wb_next_instr),
 	.wb_control_sig(wb_control_sig),
-	.wb_cc(wb_cc),
+	//.wb_cc(wb_cc),
 	.wb_alu_out(wb_alu_out),
 	.wb_ir(wb_ir),
 	.wb_dest(wb_dest),
@@ -305,7 +306,7 @@ mux4 wb_mux
 gencc gencc
 (
 	.in(wb_data_in),
-	.out(gencc_out)
+	.out(wb_cc)
 );
 
 assign wb_load_cc = wb_control_sig.load_cc&wb_valid;
