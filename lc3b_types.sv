@@ -17,7 +17,9 @@ typedef logic [1:0] lc3b_mux_sel;
 typedef logic [2:0] lc3b_mux8_sel;
 
 typedef logic [127:0] lc3b_line;
+typedef logic [255:0] lc3b_d_line;
 typedef logic [8:0] lc3b_c_tag;
+typedef logic [10:0] lc3b_L2_tag;
 typedef logic [2:0] lc3b_c_index;
 typedef logic [2:0] lc3b_c_offset;
 
