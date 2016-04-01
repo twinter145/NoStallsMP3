@@ -98,7 +98,7 @@ mux3 pcmux
 (
 	.sel(pcmux_sel),
 	.a(plus2_out),
-	.b(mem_address),
+	.b(wb_address),
 	.c(mem_trap),
 	.f(pcmux_out)
 );
