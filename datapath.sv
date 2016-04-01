@@ -172,7 +172,7 @@ register #(.width(3)) cc
 (
 	.clk,
 	.load(wb_load_cc),
-	.in(wb_cc),
+	.in(gencc_out),//this must be wrong//fixed, i think
 	.out(cc_out)
 );
 */

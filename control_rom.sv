@@ -61,6 +61,7 @@ begin
 		op_br: begin//
 			ctrl.wb_mux_sel = 0;//??
 			ctrl.offset_mux_sel = 2;
+			ctrl.address_mux_sel = 1;////////////////////////////////
 		end
 		
 		op_ldr: begin//
