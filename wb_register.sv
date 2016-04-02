@@ -3,6 +3,7 @@ import lc3b_types::*;
 module wb_register
 (
     input clk,
+	 input load,
 	 /* inputs */
     input lc3b_word mem_address,
 	 input lc3b_word mem_rdata,
@@ -29,7 +30,7 @@ module wb_register
 register #(.width(16)) address
 (
     .clk,
-    .load(clk),
+    .load,
     .in(mem_address),
     .out(wb_address)
 );
@@ -38,7 +39,7 @@ register #(.width(16)) address
 register #(.width(16)) rdata
 (
     .clk,
-    .load(clk),
+    .load,
     .in(mem_rdata),
     .out(wb_rdata)
 );
@@ -47,7 +48,7 @@ register #(.width(16)) rdata
 register #(.width(16)) next_instr
 (
     .clk,
-    .load(clk),
+    .load,
     .in(mem_next_instr),
     .out(wb_next_instr)
 );
@@ -56,7 +57,7 @@ register #(.width(16)) next_instr
 register #(.width(40)) control_signal
 (
     .clk,
-    .load(clk),
+    .load,
     .in(mem_control_sig),
     .out(wb_control_sig)
 );
@@ -74,7 +75,7 @@ register #(.width(3)) cc
 register #(.width(16)) alu_out
 (
     .clk,
-    .load(clk),
+    .load,
     .in(mem_alu_out),
     .out(wb_alu_out)
 );
@@ -83,7 +84,7 @@ register #(.width(16)) alu_out
 register #(.width(16)) ir
 (
     .clk,
-    .load(clk),
+    .load,
     .in(mem_ir),
     .out(wb_ir)
 );
@@ -92,7 +93,7 @@ register #(.width(16)) ir
 register #(.width(3)) dest
 (
     .clk,
-    .load(clk),
+    .load,
     .in(mem_dest),
     .out(wb_dest)
 );
@@ -101,7 +102,7 @@ register #(.width(3)) dest
 register #(.width(1)) valid
 (
     .clk,
-    .load(clk),
+    .load,
     .in(mem_valid),
     .out(wb_valid)
 );

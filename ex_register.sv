@@ -3,6 +3,7 @@ import lc3b_types::*;
 module ex_register
 (
     input clk,
+	 input load,
     /* inputs */
 	 input lc3b_word de_next_instr,
 	 input lc3b_control de_control_sig,
@@ -27,7 +28,7 @@ module ex_register
 register #(.width(16)) next_instr
 (
     .clk,
-    .load(clk),
+    .load,
     .in(de_next_instr),
     .out(ex_next_instr)
 );
@@ -36,7 +37,7 @@ register #(.width(16)) next_instr
 register #(.width(40)) control_signal
 (
     .clk,
-    .load(clk),
+    .load,
     .in(de_control_sig),
     .out(ex_control_sig)
 );
@@ -45,7 +46,7 @@ register #(.width(40)) control_signal
 register #(.width(3)) cc
 (
     .clk,
-    .load(clk),
+    .load,
     .in(de_cc),
     .out(ex_cc)
 );
@@ -54,7 +55,7 @@ register #(.width(3)) cc
 register #(.width(16)) ir
 (
     .clk,
-    .load(clk),
+    .load,
     .in(de_ir),
     .out(ex_ir)
 );
@@ -63,7 +64,7 @@ register #(.width(16)) ir
 register #(.width(16)) sr1
 (
     .clk,
-    .load(clk),
+    .load,
     .in(de_sr1),
     .out(ex_sr1)
 );
@@ -72,7 +73,7 @@ register #(.width(16)) sr1
 register #(.width(16)) sr2
 (
     .clk,
-    .load(clk),
+    .load,
     .in(de_sr2),
     .out(ex_sr2)
 );
@@ -81,7 +82,7 @@ register #(.width(16)) sr2
 register #(.width(3)) dest
 (
     .clk,
-    .load(clk),
+    .load,
     .in(de_dest),
     .out(ex_dest)
 );
@@ -90,7 +91,7 @@ register #(.width(3)) dest
 register #(.width(1)) valid
 (
     .clk,
-    .load(clk),
+    .load,
     .in(de_valid),
     .out(ex_valid)
 );

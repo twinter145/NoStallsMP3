@@ -72,6 +72,11 @@ assign mem_read_a = clk;//load every cycle
 assign mem_address_b = mem_address;
 assign mem_wdata_b = mem_alu_out;
 
+//stalls
+logic memory_stall, load_register;
+assign memory_stall = mem_control_sig.write_memory + mem_control_sig.read_memory;
+//if A then B == B+A'
+assign load_register = clk & mem_resp_a & (mem_resp_b + !memory_stall);
 
 ///////////
 /* fetch */
@@ -81,7 +86,7 @@ assign mem_wdata_b = mem_alu_out;
 register pc
 (
     .clk,
-    .load(clk),
+    .load(load_register),
     .in(pcmux_out),
     .out(pc_out)
 );
@@ -118,6 +123,7 @@ de_register de_register
 (
 	//inputs
 	.clk,
+	.load(load_register),
 	.plus2_out(plus2_out),
 	.mem_rdata(mem_rdata_a),//input for ir
 	//outputs
@@ -199,6 +205,7 @@ regfile regfile
 ex_register ex_register
 (
 	.clk,
+	.load(load_register),
 	//inputs
 	.de_next_instr(de_next_instr),
 	.de_control_sig(de_control_sig),
@@ -221,6 +228,7 @@ ex_register ex_register
 
 ex_logic ex_logic
 (
+	//.clk,
 	//inputs
 	.ex_control_sig(ex_control_sig),
 	.ex_next_instruction(ex_next_instr),
@@ -240,6 +248,7 @@ ex_logic ex_logic
 mem_register mem_register 
 (
 	.clk,
+	.load(load_register),
 	//inputs
 	.ex_address(ex_address),
 	.ex_next_instr(ex_next_instr),
@@ -271,6 +280,7 @@ assign mem_write_b = mem_control_sig.write_memory;
 wb_register wb_regsiter
 (
 	.clk,
+	.load(load_register),
 	//inputs
 	.mem_address(mem_address),
 	.mem_rdata(mem_rdata_b),
@@ -309,7 +319,8 @@ gencc gencc
 	.out(wb_cc)
 );
 
-assign wb_load_cc = wb_control_sig.load_cc&wb_valid;
-assign wb_load_reg = wb_control_sig.load_regfile&wb_valid;
+//added &load_register to the end of these
+assign wb_load_cc = wb_control_sig.load_cc & wb_valid & load_register;
+assign wb_load_reg = wb_control_sig.load_regfile & wb_valid & load_register;
 
 endmodule : datapath

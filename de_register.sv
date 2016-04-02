@@ -4,6 +4,7 @@ module de_register
 (
     /* inputs */
     input clk,
+	 input load,
 	 input lc3b_word plus2_out,
 	 input lc3b_word mem_rdata,
 	 
@@ -22,7 +23,7 @@ module de_register
 register #(.width(16)) de_next_instr
 (
 	.clk,
-	.load(clk),
+	.load,
 	.in(plus2_out),
 	.out(de_next_instr_out)
 );
@@ -31,7 +32,7 @@ ir IR //reference input/output names
 (
 	//inputs
 	.clk,
-	.load(clk),
+	.load,
 	.in(mem_rdata),
 	.out(de_ir_out),
 	.opcode(de_opcode),
@@ -45,7 +46,7 @@ ir IR //reference input/output names
 register #(.width(1)) de_valid
 (
 	.clk,
-	.load(clk),
+	.load,
 	.in(1'b1),
 	.out(de_valid_out)
 );
