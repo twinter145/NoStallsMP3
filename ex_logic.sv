@@ -24,6 +24,7 @@ lc3b_word addressmux_out;
 lc3b_word sext5_out;
 lc3b_word sext6_out;
 lc3b_word zext4_out;
+lc3b_word alua_mux_out;
 
 assign ex_address = addressmux_out;
 
@@ -114,10 +115,18 @@ mux4 immsr2mux
 	.f(immsr2mux_out)
 );
 
+mux2 alua_mux
+(
+	.sel(ex_control_sig.alua_mux_sel), // from control word
+	.a(ex_sr1),
+	.b(ex_sr2),
+	.f(alua_mux_out)
+);
+
 alu ALU
 (
 	.aluop(ex_control_sig.aluop), // from control word
-	.a(ex_sr1),
+	.a(alua_mux_out),
 	.b(immsr2mux_out),
 	.f(ex_alu_out)
 );

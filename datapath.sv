@@ -60,7 +60,7 @@ lc3b_reg wb_dest;
 logic wb_valid, wb_load_cc, wb_load_reg;
 
 assign mem_wmask_a = 2'b11;
-assign mem_wmask_b = 2'b11;
+assign mem_wmask_b = mem_control_sig.memory_wmask;
 assign mem_wdata_a = 16'b0;
 assign mem_write_a = 1'b0;
 
@@ -158,7 +158,6 @@ mux2 #(.width(3))sr2_mux//renamed to sr2_mux
 	.f(sr2_mux_out)
 );
 
-
 mux2 #(.width(3))destmux
 (
 	.sel(de_control_sig.dest_mux_sel),
@@ -166,7 +165,6 @@ mux2 #(.width(3))destmux
 	.b(3'b111),
 	.f(destmux_out)
 );
-
 
 cc CC
 (

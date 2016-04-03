@@ -21,8 +21,11 @@ begin
 		out = 2'b10;
 	else if(opcode == op_jmp)
 		out = 2'b11;
-	else
-		out = 2'b00;
+	else if (opcode == op_jsr)
+	begin
+		out = 2'b01;//unconditional jump
+	end
+	else out = 2'b00;
 end
 
 endmodule : fetch_logic
