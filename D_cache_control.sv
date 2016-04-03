@@ -102,7 +102,7 @@ begin : state_actions
 			highaddrmux_sel = 1;
 			pmem_write = 1;
 		end
-		
+
 		read_mem: begin
 			if(lru_out == 1'b0)
 				way0_write = 1;

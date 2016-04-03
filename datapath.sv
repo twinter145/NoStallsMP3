@@ -11,14 +11,14 @@ module datapath
 	input mem_resp_b,
    input lc3b_word mem_rdata_b,
    //outputs
-   output mem_read_a,
-   output mem_write_a,
-   output [1:0] mem_wmask_a,
+   output logic mem_read_a,
+   output logic mem_write_a,
+   output logic [1:0] mem_wmask_a,
    output lc3b_word mem_address_a,
    output lc3b_word mem_wdata_a,
-	output mem_read_b,
-   output mem_write_b,
-   output [1:0] mem_wmask_b,
+	output logic mem_read_b,
+   output logic mem_write_b,
+   output logic [1:0] mem_wmask_b,
    output lc3b_word mem_address_b,
    output lc3b_word mem_wdata_b
 	
@@ -66,7 +66,7 @@ assign mem_write_a = 1'b0;
 
 //instruction port
 assign mem_address_a = pc_out;
-assign mem_read_a = clk;//load every cycle
+
 
 //data port
 assign mem_address_b = mem_address;
@@ -77,6 +77,16 @@ logic memory_stall, load_register;
 assign memory_stall = mem_control_sig.write_memory + mem_control_sig.read_memory;
 //if A then B == B+A'
 assign load_register = clk & mem_resp_a & (mem_resp_b + !memory_stall);
+//assign mem_read_a = load_register;
+
+always_ff @ (posedge clk)
+begin
+	mem_read_a = 1'b1;
+	if(mem_resp_a == 1'b1)
+		mem_read_a = 1'b0;
+	else if(load_register == 1'b1)
+		mem_read_a = 1'b1;
+end
 
 ///////////
 /* fetch */

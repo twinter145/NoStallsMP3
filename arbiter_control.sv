@@ -65,10 +65,10 @@ begin : next_state_logic
 
 	case(state)
 		idle: begin
-			if(I_read == 1'b1)
-				next_state = I_cache_r;
-			else if((D_read == 1'b1) || (D_write == 1'b1))
+			if((D_read == 1'b1) || (D_write == 1'b1))
 				next_state = D_cache_rw;
+			else if(I_read == 1'b1)
+				next_state = I_cache_r;
 		end
 		
 		I_cache_r: begin
