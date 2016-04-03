@@ -48,13 +48,13 @@ lc3b_reg ex_dest;
 lc3b_nzp ex_cc;
 logic ex_valid;
 //memory
-lc3b_word mem_next_instr, mem_ir;
+lc3b_word mem_next_instr, mem_ir, ldb_mux_out, mem_mux_out;
 lc3b_control mem_control_sig;
 lc3b_nzp mem_cc;
 lc3b_reg mem_dest;
 logic mem_valid;
 //write back
-lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in, wbmux_out, ldb_out;
+lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in, wbmux_out, ldb1_mux_out, ldb1_out, ldb2_out;
 lc3b_nzp wb_cc;
 lc3b_reg wb_dest;
 logic wb_valid, wb_load_cc, wb_load_reg;
@@ -280,6 +280,7 @@ mem_register mem_register
 	.mem_valid(mem_valid)
 );
 
+
 assign mem_read_b = mem_control_sig.read_memory;
 assign mem_write_b = mem_control_sig.write_memory;
 
@@ -323,20 +324,42 @@ mux4 wb_mux
 	.d(wb_alu_out),
 	.f(wbmux_out)
 );
-
+/*
 ldb ldb
 (
 	.clk,
 	.address(wb_alu_out),
-	.data_in(wb_rdata),
+	.data_in(mem_rdata_b),
 	.data_out(ldb_out)
 );
+*/
 
-mux2 ldb_mux
+zext ldb1
+(
+	.in(mem_rdata_b[7:0]),
+	.out(ldb1_out)	
+);
+
+zext ldb2
+(
+	.in(mem_rdata_b[15:8]),
+	.out(ldb2_out)
+);
+
+mux2 ldb1_mux
+(
+	.sel(wb_address[0]),
+	.a(ldb1_out),
+	.b(ldb2_out),
+	.f(ldb1_mux_out)
+	
+);
+
+mux2 ldb2_mux
 (
 	.sel(wb_control_sig.ldb_mux_sel),
 	.a(wbmux_out),
-	.b(ldb_out),
+	.b(ldb1_mux_out),
 	.f(wb_data_in)
 );
 
