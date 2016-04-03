@@ -13,11 +13,16 @@ begin
 	if (opcode == op_br) 
 	begin
 		if ((ir_9_11&cc) > 0)
-			out = 1;
+			out = 2'b01;
 		else
-			out = 0;
+			out = 2'b00;
 	end
-	else out = 0;
+	else if(opcode == op_trap)
+		out = 2'b10;
+	else if(opcode == op_jmp)
+		out = 2'b11;
+	else
+		out = 2'b00;
 end
 
 endmodule : fetch_logic

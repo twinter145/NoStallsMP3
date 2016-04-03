@@ -36,11 +36,11 @@ lc3b_word plus2_out, pcmux_out, mem_trap, pc_out, mem_alu_out, mem_address;
 lc3b_mux_sel pcmux_sel;
 lc3b_nzp cc_out;
 //decode
-lc3b_control de_control_sig; //worry about size later
+lc3b_control de_control_sig; 
 lc3b_reg destmux_out, sr2_mux_out, de_dest, src1, src2;
 lc3b_word de_next_instr, de_sr1, de_sr2, de_ir;
 lc3b_opcode de_opcode;
-logic de_valid, de_ir5, de_ir11;
+logic de_valid, de_ir4, de_ir5, de_ir11;
 //execute
 lc3b_control ex_control_sig;
 lc3b_word ex_next_instr, ex_address, ex_alu_out, ex_ir, ex_sr1, ex_sr2;
@@ -54,7 +54,7 @@ lc3b_nzp mem_cc;
 lc3b_reg mem_dest;
 logic mem_valid;
 //write back
-lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in;
+lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in, wbmux_out, ldb_out;
 lc3b_nzp wb_cc;
 lc3b_reg wb_dest;
 logic wb_valid, wb_load_cc, wb_load_reg;
@@ -99,12 +99,13 @@ fetch_logic fetch_logic
 	.out(pcmux_sel)
 );
 
-mux3 pcmux
+mux4 pcmux
 (
 	.sel(pcmux_sel),
 	.a(plus2_out),
 	.b(wb_address),
-	.c(mem_trap),
+	.c(wb_rdata),
+	.d(wb_data_in),
 	.f(pcmux_out)
 );
 
@@ -133,6 +134,7 @@ de_register de_register
 	.src1(src1),
 	.src2(src2),
 	.de_opcode(de_opcode),
+	.de_ir4(de_ir4),
 	.de_ir5(de_ir5),
 	.de_ir11(de_ir11),
 	.de_valid_out(de_valid),
@@ -142,6 +144,7 @@ de_register de_register
 control_rom control_rom
 (
 	.opcode(de_opcode),
+	.ir4(de_ir4),
 	.ir5(de_ir5),
 	.ir11(de_ir11),
 	.out(de_control_sig)
@@ -155,7 +158,7 @@ mux2 #(.width(3))sr2_mux//renamed to sr2_mux
 	.f(sr2_mux_out)
 );
 
-/*
+
 mux2 #(.width(3))destmux
 (
 	.sel(de_control_sig.dest_mux_sel),
@@ -163,7 +166,7 @@ mux2 #(.width(3))destmux
 	.b(3'b111),
 	.f(destmux_out)
 );
-*/
+
 
 cc CC
 (
@@ -213,7 +216,7 @@ ex_register ex_register
 	.de_sr1(de_sr1),
 	.de_sr2(de_sr2),
 	.de_ir(de_ir),
-	.de_dest(de_dest),
+	.de_dest(destmux_out),
 	.de_valid(de_valid),
 	//outputs
 	.ex_next_instr(ex_next_instr),
@@ -310,6 +313,22 @@ mux4 wb_mux
 	.b(wb_rdata),
 	.c(wb_next_instr),
 	.d(wb_alu_out),
+	.f(wbmux_out)
+);
+
+ldb ldb
+(
+	.clk,
+	.address(wb_alu_out),
+	.data_in(wb_rdata),
+	.data_out(ldb_out)
+);
+
+mux2 ldb_mux
+(
+	.sel(wb_control_sig.ldb_mux_sel),
+	.a(wbmux_out),
+	.b(ldb_out),
 	.f(wb_data_in)
 );
 

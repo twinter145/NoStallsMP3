@@ -34,7 +34,7 @@ register #(.width(16)) next_instr
 );
 
 //control signal
-register #(.width(40)) control_signal
+register #(.width(43)) control_signal
 (
     .clk,
     .load,

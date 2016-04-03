@@ -19,9 +19,11 @@ lc3b_word adj6_out;
 lc3b_word adj9_out;
 lc3b_word adj11_out;
 lc3b_word offsetadder_out;
-lc3b_word zext8_out;
+lc3b_word trap_out;
 lc3b_word addressmux_out;
 lc3b_word sext5_out;
+lc3b_word sext6_out;
+lc3b_word zext4_out;
 
 assign ex_address = addressmux_out;
 
@@ -68,17 +70,19 @@ adder offsetadder
 	.f(offsetadder_out)
 );
 
-zext zext8
+trap #(.width(8))trap
 (
 	.in(ex_ir[7:0]),
-	.out(zext8_out)
+	.out(trap_out)
 );
 
-mux2 addressmux
+mux4 addressmux
 (
 	.sel(ex_control_sig.address_mux_sel), // from control word
-	.a(zext8_out),
+	.a(trap_out),
 	.b(offsetadder_out),
+	.c(ex_alu_out),
+	.d(),
 	.f(addressmux_out)
 );
 
@@ -88,11 +92,25 @@ sext #(.width(5)) sext5
 	.out(sext5_out)
 );
 
-mux2 immsr2mux
+sext #(.width(6)) sext6
+(
+	.in(ex_ir[5:0]),
+	.out(sext6_out)
+);
+
+zext #(.width(4)) zext4
+(
+	.in(ex_ir[3:0]),
+	.out(zext4_out)
+);
+
+mux4 immsr2mux
 (
 	.sel(ex_control_sig.immsr2_mux_sel), // from control word
 	.a(ex_sr2),
 	.b(sext5_out),
+	.c(zext4_out),
+	.d(sext6_out),
 	.f(immsr2mux_out)
 );
 

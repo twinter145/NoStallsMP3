@@ -4,6 +4,7 @@ module control_rom
 (
 	/*inputs*/
 	input lc3b_opcode opcode,
+	input logic ir4,
 	input logic ir5,
 	input logic ir11,
 	
@@ -26,26 +27,34 @@ begin
 	ctrl.instrsr1_mux_sel = 0;
 	ctrl.offset_mux_sel = 0;
 	ctrl.dest_mux_sel = 0;
-	ctrl.address_mux_sel = 1;
+	ctrl.address_mux_sel = 2'b01;
 	ctrl.sr2_mux_sel = 0;
-	ctrl.immsr2_mux_sel = 1;
+	ctrl.immsr2_mux_sel = 2'b01;
 	ctrl.load_regfile = 0;
 	ctrl.read_memory = 0;
 	ctrl.write_memory = 0;
+	ctrl.ldb_mux_sel = 0;
 	case(ctrl.opcode)
 		op_add: begin//
+			if(ir5)
+				ctrl.immsr2_mux_sel = 2'b01;
+			else
+				ctrl.immsr2_mux_sel = 2'b00;
 			ctrl.aluop = alu_add;
 			ctrl.sr2_mux_sel = 0;
-			ctrl.immsr2_mux_sel = ir5;
+		
 			ctrl.wb_mux_sel = 3;
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
 		end
 		
 		op_and: begin//
+			if(ir5)
+				ctrl.immsr2_mux_sel = 2'b01;
+			else
+				ctrl.immsr2_mux_sel = 2'b00;
 			ctrl.aluop = alu_and;
 			ctrl.sr2_mux_sel = 0;
-			ctrl.immsr2_mux_sel = ir5;
 			ctrl.wb_mux_sel = 3;//alu_out
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
@@ -61,7 +70,7 @@ begin
 		op_br: begin//
 			ctrl.wb_mux_sel = 0;//??
 			ctrl.offset_mux_sel = 2;
-			ctrl.address_mux_sel = 1;////////////////////////////////
+			ctrl.address_mux_sel = 2'b01;////////////////////////////////
 		end
 		
 		op_ldr: begin//
@@ -80,12 +89,21 @@ begin
 		end
 		
 		op_jmp: begin
+			ctrl.aluop = alu_pass;
+			ctrl.wb_mux_sel = 2'b11;
 		end
 		
 		op_jsr: begin
 		end
 		
 		op_ldb: begin
+			ctrl.immsr2_mux_sel = 2'b11;
+			ctrl.aluop = alu_add;
+			ctrl.ldb_mux_sel = 1;
+			ctrl.address_mux_sel = 2'b10;
+			ctrl.load_regfile = 1;
+			ctrl.load_cc = 1;
+			//wbmux??
 		end
 		
 		op_ldi: begin
@@ -98,6 +116,17 @@ begin
 		end
 		
 		op_shf: begin
+			if(ir4 == 0)
+				ctrl.aluop = alu_sll;
+			else
+				if(ir5 == 0)
+					ctrl.aluop = alu_srl;
+				else	
+					ctrl.aluop = alu_sra;
+			ctrl.immsr2_mux_sel = 2'b10;		
+			ctrl.load_regfile = 1;
+			ctrl.load_cc = 1;
+			ctrl.wb_mux_sel = 2'b11;
 		end
 		
 		op_stb: begin
@@ -107,6 +136,10 @@ begin
 		end
 		
 		op_trap: begin
+			ctrl.dest_mux_sel = 1;
+			ctrl.load_regfile = 1;
+			ctrl.wb_mux_sel = 2'b10;
+			ctrl.address_mux_sel = 2'b00;
 		end
 		 
 		default: begin

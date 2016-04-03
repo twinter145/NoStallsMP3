@@ -61,13 +61,14 @@ typedef struct packed {
 	logic load_pc;
 	//mux select
 	lc3b_mux_sel wb_mux_sel;
+	logic ldb_mux_sel;
 	lc3b_mux_sel pc_mux_sel;
 	logic instrsr1_mux_sel;
 	lc3b_mux_sel offset_mux_sel;
 	logic dest_mux_sel;
-	logic address_mux_sel;
+	lc3b_mux_sel address_mux_sel;
 	logic sr2_mux_sel;
-	logic immsr2_mux_sel;
+	lc3b_mux_sel immsr2_mux_sel;
 	logic read_memory;
 	logic write_memory;
 	lc3b_word ir;
