@@ -321,9 +321,9 @@ mux4 wb_mux
 	.b(wb_rdata),
 	.c(wb_next_instr),
 	.d(wb_alu_out),
-	.f(wbmux_out)
+	.f(wb_data_in)
 );
-
+/*
 ldb ldb
 (
 	.clk,
@@ -339,7 +339,7 @@ mux2 ldb_mux
 	.b(ldb_out),
 	.f(wb_data_in)
 );
-
+*/
 gencc gencc
 (
 	.in(wb_data_in),
