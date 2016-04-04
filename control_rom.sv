@@ -80,6 +80,7 @@ begin
 			ctrl.read_memory = 1;
 			ctrl.load_regfile = 1;
 			ctrl.offset_mux_sel = 1;
+			//ctrl.address_mux_sel = 1;
 			ctrl.instrsr1_mux_sel = 1;
 			ctrl.load_cc = 1;
 		end
