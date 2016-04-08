@@ -34,8 +34,10 @@ begin
 	ctrl.read_memory = 0;
 	ctrl.write_memory = 0;
 	ctrl.ldb_mux_sel = 0;
-	ctrl.memory_wmask = 3;
+	ctrl.memory_wmask = 3;<
 	ctrl.alua_mux_sel = 0;
+	ctrl.mem_wdata_b_sel = 0;
+	ctrl.adj11sext6mux_sel = 0;
 	case(ctrl.opcode)
 		op_add: begin//
 			if(ir5)
@@ -123,13 +125,14 @@ begin
 		end
 		
 		op_ldb: begin
-			ctrl.immsr2_mux_sel = 2'b11;
-			ctrl.aluop = alu_add;
+			ctrl.offset_mux_sel = 3;
+			ctrl.instrsr1_mux_sel = 1;
 			ctrl.ldb_mux_sel = 1;
-			ctrl.address_mux_sel = 2'b10;
+			ctrl.read_memory = 1;
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
-			ctrl.wb_mux_sel = 2'b01;
+			ctrl.wb_mux_sel = 2'b01
+			ctrl.adj11sext6mux_sel = 1;
 			//wbmux??
 		end
 		
@@ -137,7 +140,7 @@ begin
 		end
 		
 		op_lea: begin
-			ctrl.offset_mux_sel = 2;
+			ctrl.offset_mux_sel = 3;
 			ctrl.instrsr1_mux_sel = 0;
 			ctrl.address_mux_sel = 1;
 			ctrl.wb_mux_sel = 0;
@@ -165,11 +168,12 @@ begin
 		op_stb: begin
 			ctrl.wb_mux_sel = 0;//??
 			ctrl.write_memory = 1;
-			ctrl.memory_wmask = 1;
-			ctrl.offset_mux_sel = 1;
+			ctrl.offset_mux_sel = 3;
 			ctrl.instrsr1_mux_sel = 1;
 			ctrl.sr2_mux_sel = 1;
-			ctrl.immsr2_mux_sel = 0;
+			ctrl.mem_wdata_b_sel = 1;
+			ctrl.alua_mux_sel = 1;
+			ctrl.adj11sext6mux_sel = 1;
 		end
 		
 		op_sti: begin

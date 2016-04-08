@@ -25,6 +25,7 @@ lc3b_word sext5_out;
 lc3b_word sext6_out;
 lc3b_word zext4_out;
 lc3b_word alua_mux_out;
+lc3b_word adj11sext6mux_out;
 
 assign ex_address = addressmux_out;
 
@@ -42,7 +43,7 @@ mux4 offsetmux
 	.a(16'b0),
 	.b(adj6_out),
 	.c(adj9_out),
-	.d(adj11_out),
+	.d(adj11sext6mux_out),
 	.f(offsetmux_out)
 );
 
@@ -62,6 +63,20 @@ adj #(.width(11)) adj11
 (
 	.in(ex_ir[10:0]),
 	.out(adj11_out)
+);
+
+sext #(.width(6)) sext6
+(
+	.in(ex_ir[5:0]),
+	.out(sext6_out)
+);
+
+mux2 #(.width(16)) adj11_sext6_mux
+(
+	.sel(ex_control_sig.adj11sext6mux_sel),
+	.a(adj11_out),
+	.b(sext6_out),
+	.f(adj11sext6mux_out)
 );
 
 adder offsetadder
@@ -91,12 +106,6 @@ sext #(.width(5)) sext5
 (
 	.in(ex_ir[4:0]),
 	.out(sext5_out)
-);
-
-sext #(.width(6)) sext6
-(
-	.in(ex_ir[5:0]),
-	.out(sext6_out)
 );
 
 zext #(.width(4)) zext4
