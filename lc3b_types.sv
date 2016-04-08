@@ -74,6 +74,8 @@ typedef struct packed {
 	logic [1:0] memory_wmask;
 	logic alua_mux_sel;
 	lc3b_word ir;
+	logic mem_wdata_b_sel;
+	logic adj11sext6mux_sel;
 } lc3b_control;
 
 endpackage : lc3b_types

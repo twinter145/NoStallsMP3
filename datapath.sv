@@ -60,7 +60,7 @@ lc3b_reg wb_dest;
 logic wb_valid, wb_load_cc, wb_load_reg;
 
 assign mem_wmask_a = 2'b11;
-assign mem_wmask_b = mem_control_sig.memory_wmask;
+//assign mem_wmask_b = mem_control_sig.memory_wmask;
 assign mem_wdata_a = 16'b0;
 assign mem_write_a = 1'b0;
 
@@ -70,7 +70,7 @@ assign mem_address_a = pc_out;
 
 //data port
 assign mem_address_b = mem_address;
-assign mem_wdata_b = mem_alu_out;
+//assign mem_wdata_b = mem_alu_out;
 
 //stalls
 logic memory_stall, load_register;
@@ -280,6 +280,22 @@ mem_register mem_register
 	.mem_valid(mem_valid)
 );
 
+mux2 #(.width(16)) mem_wdata_b_mux
+(
+	.sel(mem_control_sig.mem_wdata_b_sel),
+	.a(mem_alu_out),
+	.b({mem_alu_out[7:0], mem_alu_out[7:0]}),
+	.f(mem_wdata_b)
+);
+
+mux2 #(.width(2)) mem_stb_mux
+(
+	.sel(mem_control_sig.mem_wdata_b_sel),
+	.a(mem_control_sig.memory_wmask),
+	.b({mem_address[0], ~mem_address[0]}),
+	.f(mem_wmask_b)
+);
+
 assign mem_read_b = mem_control_sig.read_memory;
 assign mem_write_b = mem_control_sig.write_memory;
 
@@ -321,13 +337,13 @@ mux4 wb_mux
 	.b(wb_rdata),
 	.c(wb_next_instr),
 	.d(wb_alu_out),
-	.f(wb_data_in)
+	.f(wbmux_out)
 );
-/*
+
 ldb ldb
 (
 	.clk,
-	.address(wb_alu_out),
+	.address(wb_address),
 	.data_in(wb_rdata),
 	.data_out(ldb_out)
 );
@@ -339,7 +355,7 @@ mux2 ldb_mux
 	.b(ldb_out),
 	.f(wb_data_in)
 );
-*/
+
 gencc gencc
 (
 	.in(wb_data_in),
