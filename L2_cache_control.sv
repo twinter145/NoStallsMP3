@@ -31,6 +31,8 @@ module L2_cache_control
 	input lc3b_byte dirty_out
 );
 
+logic cycle_count;
+
 enum int unsigned {
    /* List of states */
 	idle_hit,
@@ -60,7 +62,9 @@ begin : state_actions
 		idle_hit: begin
 			if((L2_read == 1'b1) || (L2_write == 1'b1)) begin
 				if(hit == 1'b1) begin
-					L2_resp = 1;
+					if(cycle_count == 1'b1) begin
+						L2_resp = 1;
+					end
 					case(waydatamux_sel)
 						3'h0: begin
 							lru_data_in[0] = 1;
@@ -301,7 +305,7 @@ begin : next_state_logic
 		read_mem: begin
 			if(pmem_resp == 1'b0)
 				next_state = read_mem;
-			else
+			else if(cycle_count == 1'b0)
 				next_state = idle_hit;
 		end
 		
@@ -317,5 +321,18 @@ begin: next_state_assignment
 	 state <= next_state;
 end
 
+always_ff @(posedge clk)
+begin
+	if((state == idle_hit) && ((L2_read == 1'b1) || (L2_write == 1'b1)) && (hit == 1'b1) && (cycle_count == 0))
+		cycle_count = 1;
+	else if((state == idle_hit) && (cycle_count == 1))
+		cycle_count = 0;
+	else if((state == read_mem) && (pmem_resp == 1'b1) && (cycle_count == 0))
+		cycle_count = 1;
+	else if((state == read_mem) && (cycle_count == 1))
+		cycle_count = 0;
+	else
+		cycle_count = 0;
+end
 
 endmodule : L2_cache_control

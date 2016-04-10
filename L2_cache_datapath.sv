@@ -28,13 +28,13 @@ module L2_cache_datapath
 );
 
 lc3b_c_index index;
-assign index = L2_address[4:2];
+assign index = L2_address[7:5];
 
 logic offset;
-assign offset = L2_address[1];
+assign offset = L2_address[4];
 
 lc3b_L2_tag tag;
-assign tag = L2_address[15:5];
+assign tag = L2_address[15:8];
 
 lc3b_d_line data_array_in;
 lc3b_line inmux_msb_out;
@@ -105,7 +105,7 @@ mux2 #(.width(128)) L2_rdatamux
 );
 
 /* Tag Arrays */
-arrays #(.width(11)) tag_arrays
+arrays #(.width(8)) tag_arrays
 (
 	.clk(clk),
 	.write(write),
@@ -169,7 +169,7 @@ array #(.width(7)) pseudo_lru_array
 );
 
 /* hit signal logic */
-tag_compare tag_comparators
+tag_compare #(.width(8)) tag_comparators
 (
 	.tag(tag),
 	.in0(tag_out0),
@@ -221,10 +221,10 @@ mux2 #(.width(3)) control_select
 );
 
 /* pmem_address logic */
-assign pmem_address[4:0] = L2_address[4:0];
+assign pmem_address[7:0] = L2_address[7:0];
 lc3b_L2_tag tagmux_out;
 
-mux8 #(.width(11)) tagmux
+mux8 #(.width(8)) tagmux
 (
 	.sel(waydatamux_sel),
 	.a(tag_out0),
@@ -238,18 +238,18 @@ mux8 #(.width(11)) tagmux
 	.f(tagmux_out)
 );
 
-mux2 #(.width(11)) highaddrmux
+mux2 #(.width(8)) highaddrmux
 (
 	.sel(highaddrmux_sel),
 	.a(tag),
 	.b(tagmux_out),
-	.f(pmem_address[15:5])
+	.f(pmem_address[15:8])
 );
 
 /* Input Data Logic */
 mux2 #(.width(128)) inmux_msb
 (
-	.sel(offset),
+	.sel(~offset),
 	.a(L2_wdata),
 	.b(pmem_wdata[255:128]),
 	.f(inmux_msb_out)
@@ -257,7 +257,7 @@ mux2 #(.width(128)) inmux_msb
 
 mux2 #(.width(128)) inmux_lsb
 (
-	.sel(~offset),
+	.sel(offset),
 	.a(L2_wdata),
 	.b(pmem_wdata[127:0]),
 	.f(inmux_lsb_out)

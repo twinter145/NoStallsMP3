@@ -7,9 +7,9 @@ module mp3
     /* Memory signals */
 	 //inputs
 	input pmem_resp,
-	input lc3b_line pmem_rdata,
+	input lc3b_d_line pmem_rdata,
     //outputs
-	output lc3b_line pmem_wdata,
+	output lc3b_d_line pmem_wdata,
 	output lc3b_word pmem_address,
 	output logic pmem_write,
 	output logic pmem_read
@@ -43,6 +43,14 @@ logic D_read;
 logic D_write;
 lc3b_line D_rdata;
 logic D_resp;
+
+//arbiter to L2 cache signals
+lc3b_line L2_rdata;
+logic L2_resp;
+lc3b_line L2_wdata;
+lc3b_word L2_address;
+logic L2_read;
+logic L2_write;
 
 //datapath
 datapath datapath
@@ -78,12 +86,12 @@ arbiter ID_arbiter
 	.D_write(D_write),
 	.D_rdata(D_rdata),
 	.D_resp(D_resp),
-	.L2_rdata(pmem_rdata),
-	.L2_resp(pmem_resp),
-	.L2_wdata(pmem_wdata),
-	.L2_address(pmem_address),
-	.L2_read(pmem_read),
-	.L2_write(pmem_write)
+	.L2_rdata(L2_rdata),
+	.L2_resp(L2_resp),
+	.L2_wdata(L2_wdata),
+	.L2_address(L2_address),
+	.L2_read(L2_read),
+	.L2_write(L2_write)
 );
 
 I_cache instruction_cache
@@ -116,22 +124,22 @@ D_cache data_cache
 	.mem_address(mem_address_b),
 	.mem_wdata(mem_wdata_b)
 );
-/*
-L2_cache l2_cache
+
+L2_cache level_2_cache
 (
 	.clk(clk),
-	.pmem_rdata(),
-	.pmem_resp(),
-	.pmem_read(),
-	.pmem_write(),
-	.pmem_wdata(),
-	.pmem_address(),
-	.L2_resp(),
-	.L2_rdata(),
-	.L2_read(),
-	.L2_write(),
-	.L2_address(),
-	.L2_wdata()
+	.pmem_rdata(pmem_rdata),
+	.pmem_resp(pmem_resp),
+	.pmem_read(pmem_read),
+	.pmem_write(pmem_write),
+	.pmem_wdata(pmem_wdata),
+	.pmem_address(pmem_address),
+	.L2_resp(L2_resp),
+	.L2_rdata(L2_rdata),
+	.L2_read(L2_read),
+	.L2_write(L2_write),
+	.L2_address(L2_address),
+	.L2_wdata(L2_wdata)
 );
-*/
+
 endmodule : mp3
