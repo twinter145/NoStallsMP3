@@ -154,9 +154,6 @@ begin
 			ctrl.load_cc = 1;
 		end
 		
-		op_rti: begin
-		end
-		
 		op_shf: begin
 			if(ir4 == 0)
 				ctrl.aluop = alu_sll;
@@ -183,6 +180,13 @@ begin
 		end
 		
 		op_sti: begin
+			ctrl.read_memory = 1;
+			ctrl.offset_mux_sel = 1;
+			ctrl.instrsr1_mux_sel = 1;
+			ctrl.sr2_mux_sel = 1;
+			ctrl.immsr2_mux_sel = 0;
+			ctrl.alua_mux_sel = 1;
+			ctrl.aluop = alu_pass;
 		end
 		
 		op_trap: begin

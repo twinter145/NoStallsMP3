@@ -48,11 +48,11 @@ lc3b_reg ex_dest;
 lc3b_nzp ex_cc;
 logic ex_valid;
 //memory
-lc3b_word mem_next_instr, mem_ir, ldb_mux_out, mem_mux_out, mem_addrmux_out, mem_addr_reg_out, mdr_out;
+lc3b_word mem_next_instr, mem_ir, ldb_mux_out, mem_mux_out, mem_addrmux_out, mem_addr_reg_out, mdr_out, ldi_mux_out;
 lc3b_control mem_control_sig;
 lc3b_nzp mem_cc;
 lc3b_reg mem_dest;
-logic mem_valid, mem_addr_mux_sel, load_address_reg;
+logic mem_valid, mem_addr_mux_sel, load_address_reg, toggle, ldi_mux_sel;
 //write back
 lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in, wbmux_out, ldb1_mux_out, ldb1_out, ldb2_out;
 lc3b_nzp wb_cc;
@@ -73,11 +73,12 @@ assign mem_address_b = mem_address;
 //assign mem_wdata_b = mem_alu_out;
 
 //stalls
-logic memory_stall, load_register, ldi_sig;
+logic memory_stall, load_register, ldi_sig, toggle_ldi;
 assign memory_stall = mem_control_sig.write_memory + mem_control_sig.read_memory;
 //if A then B == B+A'
 assign load_register = clk & mem_resp_a & ((mem_resp_b & !ldi_sig) + !memory_stall);
 //assign mem_read_a = load_register;
+assign ldi_sig = (((mem_control_sig.opcode == op_ldi) + (mem_control_sig.opcode == op_sti)) ^ toggle_ldi);
 
 always_ff @ (posedge clk)
 begin
@@ -313,27 +314,32 @@ register mdr
 	.out(mdr_out)
 );
 
+mux2 ldi_mux
+(
+	.sel(ldi_mux_sel),
+	.a(mem_rdata_b),
+	.b(mdr_out),
+	.f(ldi_mux_out)
+);
+
 stall_logic stall_logic
 (
 	.clk,
-	//.mem_address_in(mem_addr_reg_out),
-	//.mem_rdata(mem_rdata_b),
 	.load_register(load_register),
 	.mem_resp_a(mem_resp_a),
 	.mem_resp_b(mem_resp_b),
 	.write(mem_control_sig.write_memory),
 	.read(mem_control_sig.read_memory),
 	.opcode(mem_control_sig.opcode),
-	//.memory_stall(memory_stall),
-	.ldi_sig(ldi_sig),
-	.mem_addr_mux_sel(mem_addr_mux_sel)
-	//.load_address_reg(load_address_reg),
-	//.mem_address(mem_address)
+	.mem_addr_mux_sel(mem_addr_mux_sel),
+	.toggle(toggle),
+	.toggle_ldi(toggle_ldi),
+	.ldi_mux_sel(ldi_mux_sel)
 );
 
 
-assign mem_read_b = mem_control_sig.read_memory;
-assign mem_write_b = mem_control_sig.write_memory;
+assign mem_read_b = mem_control_sig.read_memory ^ toggle;
+assign mem_write_b = mem_control_sig.write_memory ^ toggle;
 
 ////////////////
 /* write back */
@@ -346,7 +352,7 @@ wb_register wb_regsiter
 	.load(load_register),
 	//inputs
 	.mem_address(mem_address),
-	.mem_rdata(mem_rdata_b),
+	.mem_rdata(ldi_mux_out),
 	.mem_next_instr(mem_next_instr),
 	.mem_control_sig(mem_control_sig),
 	.mem_cc(mem_cc),
