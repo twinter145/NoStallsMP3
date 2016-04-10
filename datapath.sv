@@ -48,11 +48,11 @@ lc3b_reg ex_dest;
 lc3b_nzp ex_cc;
 logic ex_valid;
 //memory
-lc3b_word mem_next_instr, mem_ir, ldb_mux_out, mem_mux_out;
+lc3b_word mem_next_instr, mem_ir, ldb_mux_out, mem_mux_out, mem_addrmux_out, mem_addr_reg_out, mdr_out;
 lc3b_control mem_control_sig;
 lc3b_nzp mem_cc;
 lc3b_reg mem_dest;
-logic mem_valid;
+logic mem_valid, mem_addr_mux_sel, load_address_reg;
 //write back
 lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in, wbmux_out, ldb1_mux_out, ldb1_out, ldb2_out;
 lc3b_nzp wb_cc;
@@ -73,10 +73,10 @@ assign mem_address_b = mem_address;
 //assign mem_wdata_b = mem_alu_out;
 
 //stalls
-logic memory_stall, load_register;
+logic memory_stall, load_register, ldi_sig;
 assign memory_stall = mem_control_sig.write_memory + mem_control_sig.read_memory;
 //if A then B == B+A'
-assign load_register = clk & mem_resp_a & (mem_resp_b + !memory_stall);
+assign load_register = clk & mem_resp_a & ((mem_resp_b & !ldi_sig) + !memory_stall);
 //assign mem_read_a = load_register;
 
 always_ff @ (posedge clk)
@@ -270,7 +270,7 @@ mem_register mem_register
 	.ex_dest(ex_dest),
 	.ex_valid(ex_valid),
 	//outputs
-	.mem_address(mem_address),
+	.mem_address(mem_addr_reg_out),
 	.mem_next_instr(mem_next_instr),
 	.mem_control_sig(mem_control_sig),
 	.mem_cc(mem_cc),
@@ -280,8 +280,7 @@ mem_register mem_register
 	.mem_valid(mem_valid)
 );
 
-<<<<<<< HEAD
-=======
+
 mux2 #(.width(16)) mem_wdata_b_mux
 (
 	.sel(mem_control_sig.mem_wdata_b_sel),
@@ -297,7 +296,41 @@ mux2 #(.width(2)) mem_stb_mux
 	.b({mem_address[0], ~mem_address[0]}),
 	.f(mem_wmask_b)
 );
->>>>>>> 52beb2c2f2c9af59d52492a2e19d5b7883451b61
+
+mux2 #(.width(16)) mem_addr_mux
+(
+	.sel(mem_addr_mux_sel),
+	.a(mem_addr_reg_out),
+	.b(mdr_out),
+	.f(mem_address)
+);
+
+register mdr
+(
+	.clk,
+	.load(mem_resp_b),
+	.in(mem_rdata_b),
+	.out(mdr_out)
+);
+
+stall_logic stall_logic
+(
+	.clk,
+	//.mem_address_in(mem_addr_reg_out),
+	//.mem_rdata(mem_rdata_b),
+	.load_register(load_register),
+	.mem_resp_a(mem_resp_a),
+	.mem_resp_b(mem_resp_b),
+	.write(mem_control_sig.write_memory),
+	.read(mem_control_sig.read_memory),
+	.opcode(mem_control_sig.opcode),
+	//.memory_stall(memory_stall),
+	.ldi_sig(ldi_sig),
+	.mem_addr_mux_sel(mem_addr_mux_sel)
+	//.load_address_reg(load_address_reg),
+	//.mem_address(mem_address)
+);
+
 
 assign mem_read_b = mem_control_sig.read_memory;
 assign mem_write_b = mem_control_sig.write_memory;
@@ -342,17 +375,17 @@ mux4 wb_mux
 	.d(wb_alu_out),
 	.f(wbmux_out)
 );
-
+/*
 ldb ldb
 (
 	.clk,
-<<<<<<< HEAD
-	.address(wb_alu_out),
-	.data_in(mem_rdata_b),
-=======
+//<<<<<<< HEAD
+//	.address(wb_alu_out),
+//	.data_in(mem_rdata_b),
+//=======
 	.address(wb_address),
 	.data_in(wb_rdata),
->>>>>>> 52beb2c2f2c9af59d52492a2e19d5b7883451b61
+//>>>>>>> 52beb2c2f2c9af59d52492a2e19d5b7883451b61
 	.data_out(ldb_out)
 );
 */

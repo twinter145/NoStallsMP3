@@ -34,7 +34,7 @@ begin
 	ctrl.read_memory = 0;
 	ctrl.write_memory = 0;
 	ctrl.ldb_mux_sel = 0;
-	ctrl.memory_wmask = 3;<
+	ctrl.memory_wmask = 3;
 	ctrl.alua_mux_sel = 0;
 	ctrl.mem_wdata_b_sel = 0;
 	ctrl.adj11sext6mux_sel = 0;
@@ -131,12 +131,18 @@ begin
 			ctrl.read_memory = 1;
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
-			ctrl.wb_mux_sel = 2'b01
+			//ctrl.wb_mux_sel = 2'b01;
 			ctrl.adj11sext6mux_sel = 1;
 			//wbmux??
 		end
 		
-		op_ldi: begin
+		op_ldi: begin //should be same as ldr with add'l mux, b/c just doing ldr up to mem, then reloading data as address
+			ctrl.wb_mux_sel = 1;//wb_rdata
+			ctrl.read_memory = 1;
+			ctrl.load_regfile = 1;
+			ctrl.offset_mux_sel = 1;
+			ctrl.instrsr1_mux_sel = 1;
+			ctrl.load_cc = 1;
 		end
 		
 		op_lea: begin
