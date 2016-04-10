@@ -55,7 +55,7 @@ lc3b_reg mem_dest;
 logic mem_valid, mem_addr_mux_sel, load_address_reg, toggle, ldi_mux_sel;
 //write back
 lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in, wbmux_out, ldb1_mux_out, ldb1_out, ldb2_out;
-lc3b_nzp wb_cc;
+lc3b_nzp wb_cc, wb_gencc_out;
 lc3b_reg wb_dest;
 logic wb_valid, wb_load_cc, wb_load_reg;
 
@@ -180,7 +180,7 @@ mux2 #(.width(3))destmux
 cc CC
 (
 	 .clk,
-    .in(wb_cc),
+    .in(wb_gencc_out),
 	 .load_cc(wb_load_cc),
     .out(cc_out)
 );
@@ -365,7 +365,7 @@ wb_register wb_regsiter
 	.wb_rdata(wb_rdata),
 	.wb_next_instr(wb_next_instr),
 	.wb_control_sig(wb_control_sig),
-	//.wb_cc(wb_cc),
+	.wb_cc(wb_cc),
 	.wb_alu_out(wb_alu_out),
 	.wb_ir(wb_ir),
 	.wb_dest(wb_dest),
@@ -428,7 +428,7 @@ mux2 ldb2_mux
 gencc gencc
 (
 	.in(wb_data_in),
-	.out(wb_cc)
+	.out(wb_gencc_out)
 );
 
 //added &load_register to the end of these

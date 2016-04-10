@@ -146,7 +146,7 @@ begin
 		end
 		
 		op_lea: begin
-			ctrl.offset_mux_sel = 3;
+			ctrl.offset_mux_sel = 2;
 			ctrl.instrsr1_mux_sel = 0;
 			ctrl.address_mux_sel = 1;
 			ctrl.wb_mux_sel = 0;

@@ -9,7 +9,7 @@ module wb_register
 	 input lc3b_word mem_rdata,
 	 input lc3b_word mem_next_instr,
 	 input lc3b_control mem_control_sig,
-	 input [2:0] mem_cc,
+	 input lc3b_nzp mem_cc,
 	 input lc3b_word mem_alu_out,
 	 input lc3b_word mem_ir,
 	 input lc3b_reg mem_dest,
@@ -19,7 +19,7 @@ module wb_register
 	 output lc3b_word wb_rdata,
 	 output lc3b_word wb_next_instr,
 	 output lc3b_control wb_control_sig,
-	 //output [2:0] wb_cc,
+	 output lc3b_nzp wb_cc,
 	 output lc3b_word wb_alu_out,
 	 output lc3b_word wb_ir,
 	 output lc3b_reg wb_dest,
@@ -61,7 +61,7 @@ register #(.width(64)) control_signal
     .in(mem_control_sig),
     .out(wb_control_sig)
 );
-/*
+
 //cc
 register #(.width(3)) cc
 (
@@ -70,7 +70,7 @@ register #(.width(3)) cc
     .in(mem_cc),
     .out(wb_cc)
 );
-*/
+
 //alu out
 register #(.width(16)) alu_out
 (
