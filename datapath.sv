@@ -54,7 +54,7 @@ lc3b_nzp mem_cc;
 lc3b_reg mem_dest;
 logic mem_valid, mem_addr_mux_sel, load_address_reg, toggle, ldi_mux_sel;
 //write back
-lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in, wbmux_out, ldb1_mux_out, ldb1_out, ldb2_out;
+lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in, wbmux_out, ldb1_mux_out, ldb_out;
 lc3b_nzp wb_cc, wb_gencc_out;
 lc3b_reg wb_dest;
 logic wb_valid, wb_load_cc, wb_load_reg;
@@ -185,15 +185,6 @@ cc CC
     .out(cc_out)
 );
 
-/*
-register #(.width(3)) cc
-(
-	.clk,
-	.load(wb_load_cc),
-	.in(gencc_out),//this must be wrong//fixed, i think
-	.out(cc_out)
-);
-*/
 regfile regfile
 (
 	//in
@@ -381,21 +372,16 @@ mux4 wb_mux
 	.d(wb_alu_out),
 	.f(wbmux_out)
 );
-/*
+
 ldb ldb
 (
 	.clk,
-//<<<<<<< HEAD
-//	.address(wb_alu_out),
-//	.data_in(mem_rdata_b),
-//=======
 	.address(wb_address),
 	.data_in(wb_rdata),
-//>>>>>>> 52beb2c2f2c9af59d52492a2e19d5b7883451b61
 	.data_out(ldb_out)
 );
-*/
 
+/*
 zext ldb1
 (
 	.in(mem_rdata_b[7:0]),
@@ -416,12 +402,13 @@ mux2 ldb1_mux
 	.f(ldb1_mux_out)
 	
 );
+*/
 
-mux2 ldb2_mux
+mux2 ldb_mux
 (
 	.sel(wb_control_sig.ldb_mux_sel),
 	.a(wbmux_out),
-	.b(ldb1_mux_out),
+	.b(ldb_out),
 	.f(wb_data_in)
 );
 
