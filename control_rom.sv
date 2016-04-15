@@ -38,30 +38,47 @@ begin
 	ctrl.alua_mux_sel = 0;
 	ctrl.mem_wdata_b_sel = 0;
 	ctrl.adj11sext6mux_sel = 0;
+	
+	ctrl.branch = 1'b0;
+	ctrl.uses_sr1 = 1'b0;
+	ctrl.uses_sr2 = 1'b0;
+	ctrl.uses_dest = 1'b0;
 	case(ctrl.opcode)
 		op_add: begin//
 			if(ir5)
 				ctrl.immsr2_mux_sel = 2'b01;
-			else
+			else begin
 				ctrl.immsr2_mux_sel = 2'b00;
+				
+				ctrl.uses_sr2 = 1'b1;
+			end
 			ctrl.aluop = alu_add;
 			ctrl.sr2_mux_sel = 0;
 		
 			ctrl.wb_mux_sel = 3;
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
+			
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_and: begin//
 			if(ir5)
 				ctrl.immsr2_mux_sel = 2'b01;
-			else
+			else begin
 				ctrl.immsr2_mux_sel = 2'b00;
+				
+				ctrl.uses_sr2 = 1'b1;
+			end
 			ctrl.aluop = alu_and;
 			ctrl.sr2_mux_sel = 0;
 			ctrl.wb_mux_sel = 3;//alu_out
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
+			
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_not: begin//
@@ -69,12 +86,17 @@ begin
 			ctrl.wb_mux_sel = 3;//alu_out
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
+			
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_br: begin//
 			ctrl.wb_mux_sel = 0;//??
 			ctrl.offset_mux_sel = 2;
 			ctrl.address_mux_sel = 2'b01;////////////////////////////////
+			
+			ctrl.branch = 1'b1;
 		end
 		
 		op_ldr: begin//
@@ -85,6 +107,9 @@ begin
 			//ctrl.address_mux_sel = 1;
 			ctrl.instrsr1_mux_sel = 1;
 			ctrl.load_cc = 1;
+			
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_str: begin//
@@ -101,11 +126,17 @@ begin
 			ctrl.immsr2_mux_sel = 0;
 			ctrl.alua_mux_sel = 1;
 			ctrl.aluop = alu_pass;
+			
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_jmp: begin
 			ctrl.aluop = alu_pass;
 			ctrl.wb_mux_sel = 2'b11;
+			
+			ctrl.branch = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_jsr: begin
@@ -121,7 +152,11 @@ begin
 			else begin//select base register
 				ctrl.instrsr1_mux_sel = 1;
 				ctrl.offset_mux_sel = 0;
+				
+				ctrl.uses_sr1 = 1'b1;
 			end
+			
+			ctrl.branch = 1'b1;
 		end
 		
 		op_ldb: begin
@@ -134,6 +169,9 @@ begin
 			//ctrl.wb_mux_sel = 2'b01;
 			ctrl.adj11sext6mux_sel = 1;
 			//wbmux??
+			
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_ldi: begin //should be same as ldr with add'l mux, b/c just doing ldr up to mem, then reloading data as address
@@ -143,6 +181,9 @@ begin
 			ctrl.offset_mux_sel = 1;
 			ctrl.instrsr1_mux_sel = 1;
 			ctrl.load_cc = 1;
+
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_lea: begin
@@ -152,6 +193,8 @@ begin
 			ctrl.wb_mux_sel = 0;
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
+			
+			ctrl.uses_dest = 1'b1;
 		end
 		
 		op_shf: begin
@@ -166,6 +209,9 @@ begin
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
 			ctrl.wb_mux_sel = 2'b11;
+			
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_stb: begin
@@ -177,6 +223,9 @@ begin
 			ctrl.mem_wdata_b_sel = 1;
 			ctrl.alua_mux_sel = 1;
 			ctrl.adj11sext6mux_sel = 1;
+			
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_sti: begin
@@ -187,6 +236,9 @@ begin
 			ctrl.immsr2_mux_sel = 0;
 			ctrl.alua_mux_sel = 1;
 			ctrl.aluop = alu_pass;
+			
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_trap: begin
@@ -194,6 +246,8 @@ begin
 			ctrl.load_regfile = 1;
 			ctrl.wb_mux_sel = 2'b10;
 			ctrl.address_mux_sel = 2'b00;
+			
+			ctrl.branch = 1'b1;
 		end
 		 
 		default: begin

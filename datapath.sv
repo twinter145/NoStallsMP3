@@ -35,29 +35,30 @@ lc3b_control wb_control_sig;
 lc3b_word plus2_out, pcmux_out, mem_trap, pc_out, mem_alu_out, mem_address;
 lc3b_mux_sel pcmux_sel;
 lc3b_nzp cc_out;
+logic load_pc;
 //decode
-lc3b_control de_control_sig; 
+lc3b_control de_control_sig, control_rom_out;
 lc3b_reg destmux_out, sr2_mux_out, de_dest, src1, src2;
-lc3b_word de_next_instr, de_sr1, de_sr2, de_ir;
+lc3b_word de_next_instr, de_sr1, de_sr2, de_ir, irnopmux_out;
 lc3b_opcode de_opcode;
-logic de_valid, de_ir4, de_ir5, de_ir11;
+logic de_valid, de_ir4, de_ir5, de_ir11, load_de, insert_nop;
 //execute
 lc3b_control ex_control_sig;
 lc3b_word ex_next_instr, ex_address, ex_alu_out, ex_ir, ex_sr1, ex_sr2;
 lc3b_reg ex_dest;
 lc3b_nzp ex_cc;
-logic ex_valid;
+logic ex_valid, load_ex;
 //memory
 lc3b_word mem_next_instr, mem_ir, ldb_mux_out, mem_mux_out, mem_addrmux_out, mem_addr_reg_out, mdr_out, ldi_mux_out;
 lc3b_control mem_control_sig;
 lc3b_nzp mem_cc;
 lc3b_reg mem_dest;
-logic mem_valid, mem_addr_mux_sel, load_address_reg, toggle, ldi_mux_sel;
+logic mem_valid, mem_addr_mux_sel, load_address_reg, toggle, ldi_mux_sel, load_mem;
 //write back
 lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in, wbmux_out, ldb1_mux_out, ldb_out;
 lc3b_nzp wb_cc, wb_gencc_out;
 lc3b_reg wb_dest;
-logic wb_valid, wb_load_cc, wb_load_reg;
+logic wb_valid, load_wb, wb_load_cc, wb_load_reg;
 
 assign mem_wmask_a = 2'b11;
 //assign mem_wmask_b = mem_control_sig.memory_wmask;
@@ -76,18 +77,14 @@ assign mem_address_b = mem_address;
 logic memory_stall, load_register, ldi_sig, toggle_ldi;
 assign memory_stall = mem_control_sig.write_memory + mem_control_sig.read_memory;
 //if A then B == B+A'
-assign load_register = clk & mem_resp_a & ((mem_resp_b & !ldi_sig) + !memory_stall);
+//assign load_register = clk & mem_resp_a & ((mem_resp_b & !ldi_sig) + !memory_stall);
 //assign mem_read_a = load_register;
 assign ldi_sig = (((mem_control_sig.opcode == op_ldi) + (mem_control_sig.opcode == op_sti)) ^ toggle_ldi);
 
-always_ff @ (posedge clk)
-begin
-	mem_read_a = 1'b1;
-	if(mem_resp_a == 1'b1)
-		mem_read_a = 1'b0;
-	else if(load_register == 1'b1)
-		mem_read_a = 1'b1;
-end
+//assign mem_read_a = clk;
+
+//assign mem_read_b = mem_control_sig.read_memory;
+//assign mem_write_b = mem_control_sig.write_memory;
 
 ///////////
 /* fetch */
@@ -97,7 +94,7 @@ end
 register pc
 (
     .clk,
-    .load(load_register),
+    .load(load_pc),
     .in(pcmux_out),
     .out(pc_out)
 );
@@ -135,7 +132,7 @@ de_register de_register
 (
 	//inputs
 	.clk,
-	.load(load_register),
+	.load(load_de),
 	.plus2_out(plus2_out),
 	.mem_rdata(mem_rdata_a),//input for ir
 	//outputs
@@ -158,8 +155,49 @@ control_rom control_rom
 	.ir4(de_ir4),
 	.ir5(de_ir5),
 	.ir11(de_ir11),
-	.out(de_control_sig)
+	.out(control_rom_out)
 );
+
+hazard_detection hazard_detection
+(
+	//in
+	.clk(clk),
+	.ir(de_ir),
+	.ctrl(control_rom_out),
+	.wb_ctrl(wb_control_sig),
+	.mem_resp_a(mem_resp_a),
+	.mem_read_a(mem_read_a),
+	.mem_resp_b(mem_resp_b),
+	.mem_write_b(mem_write_b),
+	.mem_read_b(mem_read_b),
+	.wb_dest(wb_dest),
+	.ldi_sig(ldi_sig),
+	//out
+	.load_register(load_register),
+	.load_pc(load_pc),
+	.load_de(load_de),
+	.load_ex(load_ex),
+	.load_mem(load_mem),
+	.load_wb(load_wb),
+	.insert_nop(insert_nop)
+);
+
+mux2 #(.width(64)) ctrlnopmux
+(
+	.sel(insert_nop),
+	.a(control_rom_out),
+	.b(64'b0),
+	.f(de_control_sig)
+);
+
+mux2 irnopmux
+(
+	.sel(insert_nop),
+	.a(de_ir),
+	.b(16'b0),
+	.f(irnopmux_out)
+);
+
 
 mux2 #(.width(3))sr2_mux//renamed to sr2_mux
 (
@@ -208,14 +246,14 @@ regfile regfile
 ex_register ex_register
 (
 	.clk,
-	.load(load_register),
+	.load(load_ex),
 	//inputs
 	.de_next_instr(de_next_instr),
 	.de_control_sig(de_control_sig),
 	.de_cc(cc_out),
 	.de_sr1(de_sr1),
 	.de_sr2(de_sr2),
-	.de_ir(de_ir),
+	.de_ir(irnopmux_out),
 	.de_dest(destmux_out),
 	.de_valid(de_valid),
 	//outputs
@@ -251,7 +289,7 @@ ex_logic ex_logic
 mem_register mem_register 
 (
 	.clk,
-	.load(load_register),
+	.load(load_mem),
 	//inputs
 	.ex_address(ex_address),
 	.ex_next_instr(ex_next_instr),
@@ -328,7 +366,6 @@ stall_logic stall_logic
 	.ldi_mux_sel(ldi_mux_sel)
 );
 
-
 assign mem_read_b = mem_control_sig.read_memory ^ toggle;
 assign mem_write_b = mem_control_sig.write_memory ^ toggle;
 
@@ -340,7 +377,7 @@ assign mem_write_b = mem_control_sig.write_memory ^ toggle;
 wb_register wb_regsiter
 (
 	.clk,
-	.load(load_register),
+	.load(load_wb),
 	//inputs
 	.mem_address(mem_address),
 	.mem_rdata(ldi_mux_out),

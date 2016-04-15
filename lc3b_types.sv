@@ -34,7 +34,7 @@ typedef enum bit [3:0] {
     op_ldr  = 4'b0110,
     op_lea  = 4'b1110,
     op_not  = 4'b1001,
-    op_rti  = 4'b1000,
+    op_rti 	= 4'b1000,
     op_shf  = 4'b1101,
     op_stb  = 4'b0011,
     op_sti  = 4'b1011,
@@ -73,9 +73,13 @@ typedef struct packed {
 	logic write_memory;
 	logic [1:0] memory_wmask;
 	logic alua_mux_sel;
-	lc3b_word ir;
+	//lc3b_word ir;
 	logic mem_wdata_b_sel;
 	logic adj11sext6mux_sel;
+	logic branch;
+	logic uses_sr1;
+	logic uses_sr2;
+	logic uses_dest;
 } lc3b_control;
 
 endpackage : lc3b_types
