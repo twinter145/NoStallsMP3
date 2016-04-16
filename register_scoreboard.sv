@@ -3,7 +3,7 @@ import lc3b_types::*;
 module register_scoreboard
 (
     input clk,
-    input logic write0, write1,
+    input logic write0, write1, mem_miss_a,
     input lc3b_reg index0, index1,
     output logic [7:0] dataout
 );
@@ -21,7 +21,7 @@ end
 
 always_ff @(posedge clk)
 begin
-	if (write0 == 1)
+	if (write0 == 1 && mem_miss_a == 0)
 		data[index0] = 1'b0;
 
 	if (write1 == 1)

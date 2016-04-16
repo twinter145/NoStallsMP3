@@ -79,7 +79,7 @@ logic memory_stall, load_register, ldi_sig, toggle_ldi;
 //if A then B == B+A'
 //assign load_register = clk & mem_resp_a & ((mem_resp_b & !ldi_sig) + !memory_stall);
 //assign mem_read_a = load_register;
-assign ldi_sig = (((mem_control_sig.opcode == op_ldi) + (mem_control_sig.opcode == op_sti)) ^ toggle_ldi);
+assign ldi_sig = (((mem_control_sig.opcode == op_ldi) | (mem_control_sig.opcode == op_sti)) ^ toggle_ldi);
 
 //assign mem_read_a = clk;
 
@@ -417,29 +417,6 @@ ldb ldb
 	.data_in(wb_rdata),
 	.data_out(ldb_out)
 );
-
-/*
-zext ldb1
-(
-	.in(mem_rdata_b[7:0]),
-	.out(ldb1_out)	
-);
-
-zext ldb2
-(
-	.in(mem_rdata_b[15:8]),
-	.out(ldb2_out)
-);
-
-mux2 ldb1_mux
-(
-	.sel(wb_address[0]),
-	.a(ldb1_out),
-	.b(ldb2_out),
-	.f(ldb1_mux_out)
-	
-);
-*/
 
 mux2 ldb_mux
 (

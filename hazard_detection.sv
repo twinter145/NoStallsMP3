@@ -16,7 +16,9 @@ lc3b_reg sr1, sr2, dest;
 
 lc3b_byte register_valid;
 
-logic store_instr;
+logic store_instr, mem_miss_a, mem_miss_b;
+logic [1:0] br_stall_count;
+logic data_hazard, hazard, load_start, load_end;
 
 assign opcode = lc3b_opcode'(ir[15:12]);
 assign dest = ir[11:9];
@@ -33,6 +35,7 @@ end
 register_scoreboard scoreboard
 (
 	.clk(clk),
+	.mem_miss_a(mem_miss_a),
 	.write0(ctrl.uses_dest),
 	.index0(dest),
 	.write1(wb_ctrl.uses_dest),
@@ -40,38 +43,60 @@ register_scoreboard scoreboard
 	.dataout(register_valid)
 );
 
-logic data_hazard, hazard, load_start, load_end;
-//if this uses sr1 and sr1 is currently invalid, or same for sr2 or store instruction
-assign data_hazard = ( (ctrl.uses_sr1 & (!register_valid[sr1]) ) | (ctrl.uses_sr2 & (!register_valid[sr2]) ) | (store_instr & (!register_valid[dest])));
+/*
+always_ff @ (posedge clk)
+begin
+	br_stall_count = 0;
+	case(br_stall_count)
+		2'b00: begin
+			if(opcode == op_br)
+				br_stall_count = 2'b01;
+		end
+		
+		2'b01: begin
+			br_stall_count = 2'b10;
+		end
+		
+		2'b10: begin
+			br_stall_count = 2'b11;
+		end
+		
+		2'b11: begin
+			br_stall_count = 2'b00;
+		end
+		
+		default: ;
+	endcase
+end
+*/
 
 always_ff @ (posedge clk)
 begin
-	mem_read_a = 1'b1;
-	if(mem_resp_a == 1'b1)
-		mem_read_a = 1'b0;
-	else if(load_register == 1'b1)
-		mem_read_a = 1'b1;
+	if(br_stall_count == 2'b01)
+		br_stall_count = 2;
+	else if(br_stall_count == 2'b10)
+		br_stall_count = 3;
+	else if(br_stall_count == 2'b11)
+		br_stall_count = 0;
+	else if(opcode == op_br)
+		br_stall_count = 1;
+	else
+		br_stall_count = 0;
 end
 
-//stalls
-logic memory_stall;
-assign memory_stall = (mem_write_b + mem_read_b); //& (!mem_resp_b);
-//if A then B == B+A'
-//assign load_register = clk & (mem_resp_a + !mem_read_a) & (!memory_stall);
-assign load_register = mem_resp_a & ((mem_resp_b & !ldi_sig) + !memory_stall);
+//if this uses sr1 and sr1 is currently invalid, or same for sr2 or store instruction
+assign data_hazard = ( (ctrl.uses_sr1 & (!register_valid[sr1]) ) | (ctrl.uses_sr2 & (!register_valid[sr2]) ) | (store_instr & (!register_valid[dest])));
 
+assign mem_miss_a = mem_read_a & ~mem_resp_a;
+assign mem_miss_b = mem_read_b & ~mem_resp_b;
+
+assign mem_read_a = 1'b1 & ~hazard;
+
+assign load_register = 1'b1 & ~mem_miss_b;
 
 assign hazard = data_hazard; //| ctrl.branch;
 
-/*
-assign load_pc = load_de & mem_resp_a;
-assign load_de = load_ex & (!hazard);
-assign load_ex = load_mem;
-assign load_mem = load_wb;
-assign load_wb = clk&(!memory_stall);
-*/
-
-assign load_start = load_register & (!hazard);
+assign load_start = load_register & ~insert_nop;
 assign load_end = load_register;
 
 assign load_pc = load_start;
@@ -80,6 +105,13 @@ assign load_ex = load_end;
 assign load_mem = load_end;
 assign load_wb = load_end;
 
-assign insert_nop = hazard;
+always_comb
+begin
+	if((hazard == 1) || (mem_miss_a == 1) || (br_stall_count != 0))
+		insert_nop = 1;
+	else
+		insert_nop = 0;
+end
+//assign insert_nop = hazard | mem_miss_a;
 	
 endmodule : hazard_detection
