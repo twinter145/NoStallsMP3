@@ -113,11 +113,6 @@ begin
 		end
 		
 		op_str: begin//
-			/*
-			ctrl.wb_mux_sel = 0;//??
-			ctrl.write_memory = 1;
-			ctrl.offset_mux_sel = 1;*/
-			
 			ctrl.wb_mux_sel = 0;//??
 			ctrl.write_memory = 1;
 			ctrl.offset_mux_sel = 1;
@@ -127,8 +122,8 @@ begin
 			ctrl.alua_mux_sel = 1;
 			ctrl.aluop = alu_pass;
 			
-			ctrl.uses_dest = 1'b1;
-			ctrl.uses_sr1 = 1'b1;
+			//ctrl.uses_dest = 1'b1;
+			//ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_jmp: begin
@@ -224,8 +219,8 @@ begin
 			ctrl.alua_mux_sel = 1;
 			ctrl.adj11sext6mux_sel = 1;
 			
-			ctrl.uses_dest = 1'b1;
-			ctrl.uses_sr1 = 1'b1;
+			//ctrl.uses_dest = 1'b1;
+			//ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_sti: begin
@@ -237,8 +232,8 @@ begin
 			ctrl.alua_mux_sel = 1;
 			ctrl.aluop = alu_pass;
 			
-			ctrl.uses_dest = 1'b1;
-			ctrl.uses_sr1 = 1'b1;
+			//ctrl.uses_dest = 1'b1;
+			//ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_trap: begin

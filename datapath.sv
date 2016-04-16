@@ -75,7 +75,7 @@ assign mem_address_b = mem_address;
 
 //stalls
 logic memory_stall, load_register, ldi_sig, toggle_ldi;
-assign memory_stall = mem_control_sig.write_memory + mem_control_sig.read_memory;
+//assign memory_stall = mem_control_sig.write_memory + mem_control_sig.read_memory;
 //if A then B == B+A'
 //assign load_register = clk & mem_resp_a & ((mem_resp_b & !ldi_sig) + !memory_stall);
 //assign mem_read_a = load_register;
@@ -457,6 +457,6 @@ gencc gencc
 
 //added &load_register to the end of these
 assign wb_load_cc = wb_control_sig.load_cc & wb_valid & load_register;
-assign wb_load_reg = wb_control_sig.load_regfile & wb_valid & load_register;
+assign wb_load_reg = wb_control_sig.load_regfile & wb_valid;
 
 endmodule : datapath

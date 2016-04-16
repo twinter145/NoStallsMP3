@@ -16,10 +16,19 @@ lc3b_reg sr1, sr2, dest;
 
 lc3b_byte register_valid;
 
-//assign opcode = ir[15:12];
+logic store_instr;
+
+assign opcode = lc3b_opcode'(ir[15:12]);
 assign dest = ir[11:9];
 assign sr1 = ir[8:6];
 assign sr2 = ir[2:0];
+always_comb
+begin
+	if((opcode == op_str) || (opcode == op_sti) || (opcode == op_stb))
+		store_instr = 1;
+	else
+		store_instr = 0;
+end
 
 register_scoreboard scoreboard
 (
@@ -32,8 +41,8 @@ register_scoreboard scoreboard
 );
 
 logic data_hazard, hazard, load_start, load_end;
-//if this uses sr1 and sr1 is currently invalid, or same for sr2
-assign data_hazard = ( (ctrl.uses_sr1 & (!register_valid[sr1]) ) | (ctrl.uses_sr2 & (!register_valid[sr2]) ) );
+//if this uses sr1 and sr1 is currently invalid, or same for sr2 or store instruction
+assign data_hazard = ( (ctrl.uses_sr1 & (!register_valid[sr1]) ) | (ctrl.uses_sr2 & (!register_valid[sr2]) ) | (store_instr & (!register_valid[dest])));
 
 always_ff @ (posedge clk)
 begin
