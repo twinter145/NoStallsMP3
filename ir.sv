@@ -14,6 +14,7 @@ module ir
 	 //output lc3b_imm5 imm5,
 	 //output lc3b_imm4 imm4,
 	 //output lc3b_trapvect8 trapvect8,
+	 output logic ir3,
 	 output logic ir4,
 	 output logic ir5,
 	 //output logic ir6,
@@ -39,6 +40,7 @@ begin
 	src1 = data[8:6];
 	src2 = data[2:0];
 	
+	ir3 = data[3];
 	ir4 = data[4];
 	ir5 = data[5];
 	//ir6 = data[6];

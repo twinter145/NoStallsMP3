@@ -14,6 +14,7 @@ module de_register
 	 output lc3b_reg src1,
 	 output lc3b_reg src2,
 	 output lc3b_opcode de_opcode,
+	 output logic de_ir3,
 	 output logic de_ir4,
 	 output logic de_ir5,
 	 output logic de_ir11,
@@ -40,6 +41,7 @@ ir IR //reference input/output names
 	.dest(de_dest),
 	.src1(src1),
 	.src2(src2),
+	.ir3(de_ir3),
 	.ir4(de_ir4),
 	.ir5(de_ir5),
 	.ir11(de_ir11)

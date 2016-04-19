@@ -34,7 +34,7 @@ typedef enum bit [3:0] {
     op_ldr  = 4'b0110,
     op_lea  = 4'b1110,
     op_not  = 4'b1001,
-    op_rti 	= 4'b1000,
+    op_ops 	= 4'b1000,	/* or, nor, xor, xnor, sub, nand */
     op_shf  = 4'b1101,
     op_stb  = 4'b0011,
     op_sti  = 4'b1011,
@@ -42,14 +42,20 @@ typedef enum bit [3:0] {
     op_trap = 4'b1111
 } lc3b_opcode;
 
-typedef enum bit [3:0] {
-    alu_add,
-    alu_and,
-    alu_not,
-    alu_pass,
-    alu_sll,
-    alu_srl,
-    alu_sra
+typedef enum bit [4:0] {
+    alu_add,	//0000
+    alu_and,	//0001
+    alu_not,	//0010
+    alu_pass,	//0011
+    alu_sll,	//0100
+    alu_srl,	//0101
+    alu_sra,	//0110
+	 alu_or,		//0111
+	 alu_nor,	//1000
+	 alu_xor,	//1001
+	 alu_xnor,	//1010
+	 alu_sub,	//1011
+	 alu_nand	//1100
 } lc3b_aluop;
 
 typedef struct packed {

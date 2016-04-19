@@ -4,6 +4,7 @@ module control_rom
 (
 	/*inputs*/
 	input lc3b_opcode opcode,
+	input logic ir3,
 	input logic ir4,
 	input logic ir5,
 	input logic ir11,
@@ -13,6 +14,8 @@ module control_rom
 );
 lc3b_control ctrl;
 assign ctrl.opcode = opcode;
+logic [2:0] ir_5_3;
+assign ir_5_3 = {ir5, ir4, ir3};
 
 always_comb
 begin
@@ -243,6 +246,33 @@ begin
 			ctrl.address_mux_sel = 2'b00;
 			
 			ctrl.branch = 1'b1;
+		end
+		
+		op_ops: begin//
+			case(ir_5_3)
+				3'b000: begin
+					//multiply
+				end
+				3'b001: begin
+					//divide
+				end
+				3'b010: ctrl.aluop = alu_or;
+				3'b011: ctrl.aluop = alu_nor;
+				3'b100: ctrl.aluop = alu_xor;
+				3'b101: ctrl.aluop = alu_xnor;
+				3'b110: ctrl.aluop = alu_sub;
+				3'b111: ctrl.aluop = alu_nand;
+			endcase
+			ctrl.sr2_mux_sel = 0;
+			ctrl.immsr2_mux_sel = 2'b00;
+		
+			ctrl.wb_mux_sel = 3;
+			ctrl.load_regfile = 1;
+			ctrl.load_cc = 1;
+			
+			ctrl.uses_dest = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
+			ctrl.uses_sr2 = 1'b1;
 		end
 		 
 		default: begin
