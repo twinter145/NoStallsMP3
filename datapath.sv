@@ -41,7 +41,7 @@ lc3b_control de_control_sig, control_rom_out;
 lc3b_reg destmux_out, sr2_mux_out, de_dest, src1, src2;
 lc3b_word de_next_instr, de_sr1, de_sr2, de_ir, irnopmux_out;
 lc3b_opcode de_opcode;
-logic de_valid, de_ir4, de_ir5, de_ir11, load_de, insert_nop;
+logic de_valid, de_ir3, de_ir4, de_ir5, de_ir11, load_de, insert_nop;
 //execute
 lc3b_control ex_control_sig;
 lc3b_word ex_next_instr, ex_address, ex_alu_out, ex_ir, ex_sr1, ex_sr2;
@@ -143,6 +143,7 @@ de_register de_register
 	.src1(src1),
 	.src2(src2),
 	.de_opcode(de_opcode),
+	.de_ir3(de_ir3),
 	.de_ir4(de_ir4),
 	.de_ir5(de_ir5),
 	.de_ir11(de_ir11),
@@ -153,6 +154,7 @@ de_register de_register
 control_rom control_rom
 (
 	.opcode(de_opcode),
+	.ir3(de_ir3),
 	.ir4(de_ir4),
 	.ir5(de_ir5),
 	.ir11(de_ir11),
