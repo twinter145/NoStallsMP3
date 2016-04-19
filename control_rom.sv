@@ -241,6 +241,7 @@ begin
 			ctrl.load_regfile = 1;
 			ctrl.wb_mux_sel = 2'b10;
 			ctrl.address_mux_sel = 2'b00;
+			ctrl.read_memory = 1;
 			
 			ctrl.branch = 1'b1;
 		end

@@ -35,7 +35,7 @@ lc3b_control wb_control_sig;
 lc3b_word plus2_out, pcmux_out, mem_trap, pc_out, mem_alu_out, mem_address;
 lc3b_mux_sel pcmux_sel;
 lc3b_nzp cc_out;
-logic load_pc;
+logic load_pc, br_taken;
 //decode
 lc3b_control de_control_sig, control_rom_out;
 lc3b_reg destmux_out, sr2_mux_out, de_dest, src1, src2;
@@ -104,7 +104,8 @@ fetch_logic fetch_logic
 	.ir_9_11(wb_ir[11:9]),
 	.cc(wb_cc),
 	.opcode(wb_control_sig.opcode),
-	.out(pcmux_sel)
+	.out(pcmux_sel),
+	.br_taken(br_taken)
 );
 
 mux4 pcmux
@@ -172,6 +173,7 @@ hazard_detection hazard_detection
 	.mem_read_b(mem_read_b),
 	.wb_dest(wb_dest),
 	.ldi_sig(ldi_sig),
+	.br_taken(br_taken),
 	//out
 	.load_register(load_register),
 	.load_pc(load_pc),

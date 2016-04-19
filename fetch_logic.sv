@@ -5,14 +5,23 @@ module fetch_logic
     input lc3b_nzp ir_9_11,
 	 input lc3b_nzp cc,
 	 input lc3b_opcode opcode,
-	 output lc3b_mux_sel out
+	 output lc3b_mux_sel out,
+	 output logic br_taken
 );
+
+always_comb
+begin
+	if((((ir_9_11 & cc) > 0) && opcode == op_br) || (opcode == op_jmp || opcode == op_jsr || opcode == op_trap))
+		br_taken = 1;
+	else
+		br_taken = 0;
+end
 
 always_comb
 begin
 	if (opcode == op_br) 
 	begin
-		if ((ir_9_11&cc) > 0)
+		if (br_taken == 1)
 			out = 2'b01;
 		else
 			out = 2'b00;
