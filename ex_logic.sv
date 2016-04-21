@@ -2,6 +2,8 @@ import lc3b_types::*;
 
 module ex_logic
 (
+	input clk,
+	input lc3b_aluop aluop, //alu_op from control rom
 	input lc3b_control ex_control_sig,
 	input lc3b_word ex_next_instruction,
 	input lc3b_word ex_ir,
@@ -9,9 +11,10 @@ module ex_logic
 	input lc3b_word ex_sr2,
 	
 	output lc3b_word ex_address,
-	output lc3b_word ex_alu_out
+	output lc3b_word lc3x_mux_out
 );
 
+lc3b_word ex_alu_out;
 lc3b_word instrsr1mux_out;
 lc3b_word immsr2mux_out;
 lc3b_word offsetmux_out;
@@ -26,8 +29,18 @@ lc3b_word sext6_out;
 lc3b_word zext4_out;
 lc3b_word alua_mux_out;
 lc3b_word adj11sext6mux_out;
+logic [31:0] multiplier_out;
+logic mult_clk_en;
+lc3b_mux_sel lc3x_mux_sel;
 
 assign ex_address = addressmux_out;
+always_comb
+begin
+	if(ex_control_sig.aluop == alu_mult || aluop == alu_mult)
+		mult_clk_en = 1;
+	else
+		mult_clk_en = 0;
+end
 
 mux2 instrsr1mux
 (
@@ -97,7 +110,7 @@ mux4 addressmux
 	.sel(ex_control_sig.address_mux_sel), // from control word
 	.a(trap_out),
 	.b(offsetadder_out),
-	.c(ex_alu_out),
+	.c(lc3x_mux_out),
 	.d(),
 	.f(addressmux_out)
 );
@@ -131,6 +144,24 @@ mux2 alua_mux
 	.b(ex_sr2),
 	.f(alua_mux_out)
 );
+
+mult3 multiplier
+(
+	.dataa(alua_mux_out),
+	.datab(immsr2mux_out),
+	.result(multiplier_out)
+);	
+
+mux4 lc3x_mux
+(
+	.sel(ex_control_sig.lc3x_mux_sel),
+	.a(ex_alu_out),
+	.b(multiplier_out[15:0]),
+	.c(),
+	.d(),
+	.f(lc3x_mux_out)
+);
+
 
 alu ALU
 (

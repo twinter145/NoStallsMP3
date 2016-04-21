@@ -44,7 +44,7 @@ lc3b_opcode de_opcode;
 logic de_valid, de_ir3, de_ir4, de_ir5, de_ir11, load_de, insert_nop;
 //execute
 lc3b_control ex_control_sig;
-lc3b_word ex_next_instr, ex_address, ex_alu_out, ex_ir, ex_sr1, ex_sr2;
+lc3b_word ex_next_instr, ex_address, ex_alu_out, ex_ir, ex_sr1, ex_sr2, lc3x_mux_out;
 lc3b_reg ex_dest;
 lc3b_nzp ex_cc;
 logic ex_valid, load_ex;
@@ -273,8 +273,9 @@ ex_register ex_register
 
 ex_logic ex_logic
 (
-	//.clk,
+	.clk,
 	//inputs
+	.aluop(control_rom_out.aluop),
 	.ex_control_sig(ex_control_sig),
 	.ex_next_instruction(ex_next_instr),
 	.ex_ir(ex_ir),
@@ -282,7 +283,7 @@ ex_logic ex_logic
 	.ex_sr2(ex_sr2),
 	//outputs
 	.ex_address(ex_address),
-	.ex_alu_out(ex_alu_out)
+	.lc3x_mux_out(lc3x_mux_out)
 );
 
 ////////////
@@ -299,7 +300,7 @@ mem_register mem_register
 	.ex_next_instr(ex_next_instr),
 	.ex_control_sig(ex_control_sig),
 	.ex_cc(ex_cc),
-	.ex_alu_out(ex_alu_out),
+	.ex_alu_out(lc3x_mux_out),
 	.ex_ir(ex_ir),
 	.ex_dest(ex_dest),
 	.ex_valid(ex_valid),
