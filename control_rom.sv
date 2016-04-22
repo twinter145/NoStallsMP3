@@ -42,6 +42,7 @@ begin
 	ctrl.mem_wdata_b_sel = 0;
 	ctrl.adj11sext6mux_sel = 0;
 	ctrl.lc3x_mux_sel = 0;
+	ctrl.mult_div = 0;
 	
 	ctrl.branch = 1'b0;
 	ctrl.uses_sr1 = 1'b0;
@@ -253,10 +254,15 @@ begin
 		op_ops: begin//
 			case(ir_5_3)
 				3'b000: begin
-					ctrl.aluop = alu_mult;
+					ctrl.aluop = alu_mult_div;
 					ctrl.lc3x_mux_sel = 1;
+					ctrl.mult_div = 1;
+					//multiply
 				end
 				3'b001: begin
+					ctrl.aluop = alu_mult_div;
+					ctrl.lc3x_mux_sel = 2'b10;
+					ctrl.mult_div = 1;
 					//divide
 				end
 				3'b010: ctrl.aluop = alu_or;

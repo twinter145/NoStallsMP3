@@ -43,11 +43,11 @@ lc3b_word de_next_instr, de_sr1, de_sr2, de_ir, irnopmux_out;
 lc3b_opcode de_opcode;
 logic de_valid, de_ir3, de_ir4, de_ir5, de_ir11, load_de, insert_nop;
 //execute
-lc3b_control ex_control_sig;
+lc3b_control ex_control_sig, ex_nop_mux_out;
 lc3b_word ex_next_instr, ex_address, ex_alu_out, ex_ir, ex_sr1, ex_sr2, lc3x_mux_out;
 lc3b_reg ex_dest;
 lc3b_nzp ex_cc;
-logic ex_valid, load_ex;
+logic ex_valid, load_ex, ex_stall;
 //memory
 lc3b_word mem_next_instr, mem_ir, ldb_mux_out, mem_mux_out, mem_addrmux_out, mem_addr_reg_out, mdr_out, ldi_mux_out;
 lc3b_control mem_control_sig;
@@ -176,6 +176,7 @@ hazard_detection hazard_detection
 	.wb_dest(wb_dest),
 	.ldi_sig(ldi_sig),
 	.br_taken(br_taken),
+	.ex_stall(ex_stall),
 	//out
 	.load_register(load_register),
 	.load_pc(load_pc),
@@ -283,7 +284,16 @@ ex_logic ex_logic
 	.ex_sr2(ex_sr2),
 	//outputs
 	.ex_address(ex_address),
-	.lc3x_mux_out(lc3x_mux_out)
+	.lc3x_mux_out(lc3x_mux_out),
+	.ex_stall(ex_stall)
+);
+
+mux2 #(.width(64)) ex_nop_mux
+(
+	.sel(ex_stall),
+	.a(ex_control_sig),
+	.b(64'b0),
+	.f(ex_nop_mux_out)
 );
 
 ////////////
@@ -298,7 +308,7 @@ mem_register mem_register
 	//inputs
 	.ex_address(ex_address),
 	.ex_next_instr(ex_next_instr),
-	.ex_control_sig(ex_control_sig),
+	.ex_control_sig(ex_nop_mux_out),
 	.ex_cc(ex_cc),
 	.ex_alu_out(lc3x_mux_out),
 	.ex_ir(ex_ir),

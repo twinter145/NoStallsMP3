@@ -7,7 +7,7 @@ module hazard_detection
 	input lc3b_word ir,
 	input lc3b_control ctrl, wb_ctrl,
 	input lc3b_reg wb_dest,
-	input logic mem_resp_a, mem_resp_b, mem_write_b, mem_read_b, ldi_sig, br_taken,
+	input logic mem_resp_a, mem_resp_b, mem_write_b, mem_read_b, ldi_sig, br_taken, ex_stall,
 	
 	output logic mem_read_a, load_pc, load_de, load_ex, load_mem, load_wb, load_register, insert_nop
 );
@@ -49,33 +49,6 @@ register_scoreboard scoreboard
 	.dataout(register_valid)
 );
 
-/*
-always_ff @ (posedge clk)
-begin
-	br_stall_count = 0;
-	case(br_stall_count)
-		2'b00: begin
-			if(opcode == op_br)
-				br_stall_count = 2'b01;
-		end
-		
-		2'b01: begin
-			br_stall_count = 2'b10;
-		end
-		
-		2'b10: begin
-			br_stall_count = 2'b11;
-		end
-		
-		2'b11: begin
-			br_stall_count = 2'b00;
-		end
-		
-		default: ;
-	endcase
-end
-*/
-
 always_ff @ (posedge clk)
 begin
 	if(br_stall_count == 2'b01)
@@ -116,12 +89,12 @@ assign load_register = 1'b1 & ~mem_miss_b & ~wb_stall;
 
 assign hazard = data_hazard; //| ctrl.branch;
 
-assign load_start = load_register & (~insert_nop | br_taken | (br_taken_count & ~mem_miss_a));
+assign load_start = ~ex_stall & load_register & (~insert_nop | br_taken | (br_taken_count & ~mem_miss_a));
 assign load_end = load_register;
 
 assign load_pc = load_start;
 assign load_de = load_start;
-assign load_ex = load_end;
+assign load_ex = load_end & ~ex_stall;
 assign load_mem = load_end;
 assign load_wb = load_end;
 
@@ -132,6 +105,5 @@ begin
 	else
 		insert_nop = 0;
 end
-//assign insert_nop = hazard | mem_miss_a;
-	
+
 endmodule : hazard_detection

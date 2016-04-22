@@ -11,7 +11,8 @@ module ex_logic
 	input lc3b_word ex_sr2,
 	
 	output lc3b_word ex_address,
-	output lc3b_word lc3x_mux_out
+	output lc3b_word lc3x_mux_out,
+	output logic ex_stall
 );
 
 lc3b_word ex_alu_out;
@@ -30,17 +31,88 @@ lc3b_word zext4_out;
 lc3b_word alua_mux_out;
 lc3b_word adj11sext6mux_out;
 logic [31:0] multiplier_out;
-logic mult_clk_en;
+lc3b_word divider_out;
+logic [1:0] mult_stall_count;
+logic [3:0] div_stall_count;
 lc3b_mux_sel lc3x_mux_sel;
+logic mult_clk_en;
+logic div_clk_en;
 
-assign ex_address = addressmux_out;
 always_comb
 begin
-	if(ex_control_sig.aluop == alu_mult || aluop == alu_mult)
+	if((ex_ir[5:3] == 3'b000) && (ex_control_sig.mult_div == 1))
 		mult_clk_en = 1;
 	else
 		mult_clk_en = 0;
+	if((ex_ir[5:3] == 3'b001) && (ex_control_sig.mult_div == 1))
+		div_clk_en = 1;
+	else
+		div_clk_en = 0;
 end
+
+always_ff @ (posedge clk)
+begin
+	if(mult_stall_count == 1)
+		mult_stall_count = 2;
+	else if(mult_stall_count == 2)
+		mult_stall_count = 3;
+	else if(mult_stall_count == 3)
+		mult_stall_count = 0;
+	else if((ex_control_sig.mult_div == 1) && (ex_ir[5:3] == 3'b000))
+		mult_stall_count = 1;
+	else
+		mult_stall_count = 0;
+end
+
+always_ff @ (posedge clk)
+begin
+	if(div_stall_count == 1)
+		div_stall_count = 2;
+	else if(div_stall_count == 2)
+		div_stall_count = 3;
+	else if(div_stall_count == 3)
+		div_stall_count = 4;
+	else if(div_stall_count == 4)
+		div_stall_count = 5;
+	else if(div_stall_count == 5)
+		div_stall_count = 6;
+	else if(div_stall_count == 6)
+		div_stall_count = 7;
+	else if(div_stall_count == 7)
+		div_stall_count = 0;
+	else if(div_stall_count == 8)
+		div_stall_count = 9;
+	else if(div_stall_count == 9)
+		div_stall_count = 10;
+	else if(div_stall_count == 10)
+		div_stall_count = 11;
+	else if(div_stall_count == 11)
+		div_stall_count = 12;
+	else if(div_stall_count == 12)
+		div_stall_count = 13;
+	else if(div_stall_count == 13)
+		div_stall_count = 14;
+	else if(div_stall_count == 14)
+		div_stall_count = 15;
+	else if(div_stall_count == 15)
+		div_stall_count = 0;
+	else if((ex_control_sig.mult_div == 1) && (ex_ir[5:3] == 3'b001))
+		div_stall_count = 1;
+	else
+		div_stall_count = 0;
+end
+
+always_comb
+begin
+	if((ex_control_sig.mult_div == 1) && (ex_ir[5:3] == 3'b000) && (mult_stall_count != 3))
+		ex_stall = 1;
+	else if((ex_control_sig.mult_div == 1) && (ex_ir[5:3] == 3'b001) && (div_stall_count != 7))
+		ex_stall = 1;
+	else
+		ex_stall = 0;
+end
+
+assign ex_address = addressmux_out;
 
 mux2 instrsr1mux
 (
@@ -145,23 +217,15 @@ mux2 alua_mux
 	.f(alua_mux_out)
 );
 
-mult3 multiplier
-(
-	.dataa(alua_mux_out),
-	.datab(immsr2mux_out),
-	.result(multiplier_out)
-);	
-
 mux4 lc3x_mux
 (
 	.sel(ex_control_sig.lc3x_mux_sel),
 	.a(ex_alu_out),
 	.b(multiplier_out[15:0]),
-	.c(),
+	.c(divider_out),
 	.d(),
 	.f(lc3x_mux_out)
 );
-
 
 alu ALU
 (
@@ -169,6 +233,23 @@ alu ALU
 	.a(alua_mux_out),
 	.b(immsr2mux_out),
 	.f(ex_alu_out)
+);
+
+multiplier lc3x_mult
+(
+	.clock(clk & mult_clk_en),
+	.dataa(alua_mux_out),
+	.datab(immsr2mux_out),
+	.result(multiplier_out)
+);
+
+divider lc3x_div
+(
+	.clock(clk & div_clk_en),
+	.denom(immsr2mux_out),
+	.numer(alua_mux_out),
+	.quotient(divider_out),
+	.remain()
 );
 
 endmodule : ex_logic

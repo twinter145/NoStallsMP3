@@ -56,7 +56,7 @@ typedef enum bit [4:0] {
 	 alu_xnor,	//1010
 	 alu_sub,	//1011
 	 alu_nand,	//1100
-	 alu_mult 	//1101
+	 alu_mult_div//1101
 } lc3b_aluop;
 
 typedef struct packed {
@@ -88,7 +88,7 @@ typedef struct packed {
 	logic uses_sr2;
 	logic uses_dest;
 	lc3b_mux_sel lc3x_mux_sel;
-	
+	logic mult_div;
 } lc3b_control;
 
 endpackage : lc3b_types

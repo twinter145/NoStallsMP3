@@ -23,7 +23,7 @@ begin
 		  alu_xnor: f = ~(a ^ b);
 		  alu_sub: f = a - b;
 		  alu_nand: f = ~(a & b);
-		  alu_mult: f = a;
+		  alu_mult_div: f = a;
         default: $display("Unknown aluop");
     endcase
 end
