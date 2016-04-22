@@ -67,7 +67,7 @@ typedef struct packed {
 	logic load_regfile;
 	logic load_pc;
 	//mux select
-	lc3b_mux_sel wb_mux_sel;
+	lc3b_mux8_sel wb_mux_sel;
 	logic ldb_mux_sel;
 	lc3b_mux_sel pc_mux_sel;
 	logic instrsr1_mux_sel;
@@ -89,6 +89,7 @@ typedef struct packed {
 	logic uses_dest;
 	lc3b_mux_sel lc3x_mux_sel;
 	logic mult_div;
+	logic reset_counters;
 } lc3b_control;
 
 endpackage : lc3b_types

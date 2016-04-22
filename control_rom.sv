@@ -7,6 +7,7 @@ module control_rom
 	input logic ir3,
 	input logic ir4,
 	input logic ir5,
+	input logic ir8,
 	input logic ir11,
 	
 	/*outputs*/
@@ -48,6 +49,8 @@ begin
 	ctrl.uses_sr1 = 1'b0;
 	ctrl.uses_sr2 = 1'b0;
 	ctrl.uses_dest = 1'b0;
+	
+	ctrl.reset_counters = 1'b0;
 	case(ctrl.opcode)
 		op_add: begin//
 			if(ir5)
@@ -133,7 +136,7 @@ begin
 		
 		op_jmp: begin
 			ctrl.aluop = alu_pass;
-			ctrl.wb_mux_sel = 2'b11;
+			ctrl.wb_mux_sel = 3'b011;
 			
 			ctrl.branch = 1'b1;
 			ctrl.uses_sr1 = 1'b1;
@@ -166,7 +169,7 @@ begin
 			ctrl.read_memory = 1;
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
-			//ctrl.wb_mux_sel = 2'b01;
+			//ctrl.wb_mux_sel = 3'b001;
 			ctrl.adj11sext6mux_sel = 1;
 			//wbmux??
 			
@@ -208,7 +211,7 @@ begin
 			ctrl.immsr2_mux_sel = 2'b10;		
 			ctrl.load_regfile = 1;
 			ctrl.load_cc = 1;
-			ctrl.wb_mux_sel = 2'b11;
+			ctrl.wb_mux_sel = 3'b011;
 			
 			ctrl.uses_dest = 1'b1;
 			ctrl.uses_sr1 = 1'b1;
@@ -242,13 +245,28 @@ begin
 		end
 		
 		op_trap: begin
-			ctrl.dest_mux_sel = 1;
-			ctrl.load_regfile = 1;
-			ctrl.wb_mux_sel = 2'b10;
-			ctrl.address_mux_sel = 2'b00;
-			ctrl.read_memory = 1;
-			
-			ctrl.branch = 1'b1;
+			if (ir8) begin
+				//load performance counter into register
+				if (ir3) begin
+					ctrl.reset_counters = 1;
+				end
+				else begin
+					ctrl.load_regfile = 1;
+					ctrl.wb_mux_sel = 3'b100;
+					ctrl.uses_dest = 1'b1;
+				end
+				
+			end
+			else begin
+				//normal trap instruction
+				ctrl.dest_mux_sel = 1;
+				ctrl.load_regfile = 1;
+				ctrl.wb_mux_sel = 3'b010;
+				ctrl.address_mux_sel = 2'b00;
+				ctrl.read_memory = 1;
+				
+				ctrl.branch = 1'b1;
+			end
 		end
 		
 		op_ops: begin//

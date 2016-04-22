@@ -13,7 +13,7 @@ module L2_cache
 	output lc3b_word pmem_address,
 	
 	/* Signals to arbiter */
-	output logic L2_resp,
+	output logic L2_resp, L2_miss,
 	output lc3b_line L2_rdata,
 	input L2_read,
 	input L2_write,
@@ -35,6 +35,8 @@ logic data_input_select;
 logic hit;
 logic [6:0] lru_data_out;
 logic [2:0] waydatamux_sel;
+
+assign L2_miss = (L2_read | L2_write) & (~L2_resp);
 
 L2_cache_datapath L2_datapath
 (

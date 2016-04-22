@@ -17,6 +17,7 @@ module ir
 	 output logic ir3,
 	 output logic ir4,
 	 output logic ir5,
+	 output logic ir8,
 	 //output logic ir6,
 	 output logic ir11
 );
@@ -43,7 +44,7 @@ begin
 	ir3 = data[3];
 	ir4 = data[4];
 	ir5 = data[5];
-	//ir6 = data[6];
+	ir8 = data[8];
 	ir11 = data[11];
 	/*
 	imm5 = data[4:0];

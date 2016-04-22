@@ -9,14 +9,14 @@ module hazard_detection
 	input lc3b_reg wb_dest,
 	input logic mem_resp_a, mem_resp_b, mem_write_b, mem_read_b, ldi_sig, br_taken, ex_stall,
 	
-	output logic mem_read_a, load_pc, load_de, load_ex, load_mem, load_wb, load_register, insert_nop
+	output logic mem_read_a, load_pc, load_de, load_ex, load_mem, load_wb, load_register, insert_nop, mem_miss_a, mem_miss_b
 );
 lc3b_opcode opcode;
 lc3b_reg sr1, sr2, dest;
 
 lc3b_byte register_valid;
 
-logic store_instr, mem_miss_a, mem_miss_b;
+logic store_instr;
 logic [1:0] br_stall_count;
 logic br_taken_count;
 logic wb_stall;

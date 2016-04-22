@@ -31,6 +31,7 @@ logic mem_write_b;
 lc3b_mem_wmask mem_wmask_b;
 lc3b_word mem_address_b;
 lc3b_word mem_wdata_b;
+logic L2_miss;
 
 //cache to arbiter signals
 lc3b_word I_address;
@@ -69,7 +70,8 @@ datapath datapath
 	.mem_write_b(mem_write_b),
 	.mem_wmask_b(mem_wmask_b),
 	.mem_address_b(mem_address_b),
-	.mem_wdata_b(mem_wdata_b)
+	.mem_wdata_b(mem_wdata_b),
+	.L2_miss(L2_miss)
 );
 
 //cache
@@ -139,7 +141,8 @@ L2_cache level_2_cache
 	.L2_read(L2_read),
 	.L2_write(L2_write),
 	.L2_address(L2_address),
-	.L2_wdata(L2_wdata)
+	.L2_wdata(L2_wdata),
+	.L2_miss(L2_miss)
 );
 
 endmodule : mp3

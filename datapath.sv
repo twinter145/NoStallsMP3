@@ -10,6 +10,7 @@ module datapath
    input lc3b_word mem_rdata_a,
 	input mem_resp_b,
    input lc3b_word mem_rdata_b,
+	input L2_miss,
    //outputs
    output logic mem_read_a,
    output logic mem_write_a,
@@ -41,7 +42,7 @@ lc3b_control de_control_sig, control_rom_out;
 lc3b_reg destmux_out, sr2_mux_out, de_dest, src1, src2;
 lc3b_word de_next_instr, de_sr1, de_sr2, de_ir, irnopmux_out;
 lc3b_opcode de_opcode;
-logic de_valid, de_ir3, de_ir4, de_ir5, de_ir11, load_de, insert_nop;
+logic de_valid, de_ir3, de_ir4, de_ir5, de_ir8, de_ir11, load_de, insert_nop, mem_miss_a, mem_miss_b;
 //execute
 lc3b_control ex_control_sig, ex_nop_mux_out;
 lc3b_word ex_next_instr, ex_address, ex_alu_out, ex_ir, ex_sr1, ex_sr2, lc3x_mux_out;
@@ -59,6 +60,10 @@ lc3b_word wb_address, wb_rdata, wb_next_instr, wb_alu_out, wb_ir, wb_data_in, wb
 lc3b_nzp wb_cc, wb_gencc_out;
 lc3b_reg wb_dest;
 logic wb_valid, load_wb, wb_load_cc, wb_load_reg;
+//performance counters
+logic counters_reset, instr_count_add, nop_count_add, icache_access_add, icache_miss_add, dcache_access_add, dcache_miss_add, l2cache_access_add, l2cache_miss_add;
+lc3b_word instr_count_out, nop_count_out, icache_access_out, icache_miss_out, dcache_access_out, dcache_miss_out, l2cache_access_out, l2cache_miss_out, counter_mux_out;
+lc3b_mux8_sel counter_mux_sel;
 
 assign mem_wmask_a = 2'b11;
 //assign mem_wmask_b = mem_control_sig.memory_wmask;
@@ -102,6 +107,7 @@ register pc
 fetch_logic fetch_logic
 (
 	.ir_9_11(wb_ir[11:9]),
+	.ir8(wb_ir[8]),
 	.cc(wb_cc),
 	.opcode(wb_control_sig.opcode),
 	.out(pcmux_sel),
@@ -146,6 +152,7 @@ de_register de_register
 	.de_ir3(de_ir3),
 	.de_ir4(de_ir4),
 	.de_ir5(de_ir5),
+	.de_ir8(de_ir8),
 	.de_ir11(de_ir11),
 	.de_valid_out(de_valid),
 	.de_ir_out(de_ir)
@@ -157,6 +164,7 @@ control_rom control_rom
 	.ir3(de_ir3),
 	.ir4(de_ir4),
 	.ir5(de_ir5),
+	.ir8(de_ir8),
 	.ir11(de_ir11),
 	.out(control_rom_out)
 );
@@ -184,7 +192,9 @@ hazard_detection hazard_detection
 	.load_ex(load_ex),
 	.load_mem(load_mem),
 	.load_wb(load_wb),
-	.insert_nop(insert_nop)
+	.insert_nop(insert_nop),
+	.mem_miss_a(mem_miss_a),
+	.mem_miss_b(mem_miss_b)
 );
 
 mux2 #(.width(64)) ctrlnopmux
@@ -415,13 +425,14 @@ wb_register wb_regsiter
 	.wb_valid(wb_valid)
 );
 
-mux4 wb_mux
+mux8 wb_mux
 (
 	.sel(wb_control_sig.wb_mux_sel),
 	.a(wb_address),
 	.b(wb_rdata),
 	.c(wb_next_instr),
 	.d(wb_alu_out),
+	.e(counter_mux_out),
 	.f(wbmux_out)
 );
 
@@ -450,5 +461,88 @@ gencc gencc
 //added &load_register to the end of these
 assign wb_load_cc = wb_control_sig.load_cc & wb_valid & load_register;
 assign wb_load_reg = wb_control_sig.load_regfile & wb_valid;
+
+//////////////////////////
+/* performance counters */
+//////////////////////////
+assign counters_reset = ex_control_sig.reset_counters;
+
+counter instr_counter
+(
+	.clk,
+	.increment((~insert_nop)&load_ex),
+	.reset(counters_reset),
+	.count(instr_count_out)
+);
+
+counter nop_counter
+(
+	.clk,
+	.increment(insert_nop&load_ex),
+	.reset(counters_reset),
+	.count(nop_count_out)
+);
+
+counter icache_access_counter/////////////
+(
+	.clk,
+	.increment(mem_read_a),
+	.reset(counters_reset),
+	.count(icache_access_out)
+);
+
+counter_n icache_miss_counter
+(
+	.clk,
+	.increment(mem_miss_a),
+	.reset(counters_reset),
+	.count(icache_miss_out)
+);
+
+counter dcache_access_counter//////////////
+(
+	.clk,
+	.increment(mem_read_b|mem_write_b),
+	.reset(counters_reset),
+	.count(dcache_access_out)
+);
+
+counter_n decache_miss_counter
+(
+	.clk,
+	.increment(mem_miss_b),
+	.reset(counters_reset),
+	.count(dcache_miss_out)
+);
+
+counter_n l2cache_access_counter
+(
+	.clk,
+	.increment(mem_miss_a|mem_miss_b),
+	.reset(counters_reset),
+	.count(l2cache_access_out)
+);
+
+counter_nn l2cache_miss_counter
+(
+	.clk,
+	.increment(L2_miss),//(L2_read|L2_write)&(~L2_resp)
+	.reset(counters_reset),
+	.count(l2cache_miss_out)
+);
+
+mux8 counter_mux
+(
+	.sel(wb_ir[2:0]),
+	.a(instr_count_out),
+	.b(nop_count_out),
+	.c(icache_access_out),
+	.d(icache_miss_out),
+	.e(dcache_access_out),
+	.g(dcache_miss_out),
+	.h(l2cache_access_out),
+	.i(l2cache_miss_out),
+	.f(counter_mux_out)
+);
 
 endmodule : datapath

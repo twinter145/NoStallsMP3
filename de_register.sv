@@ -17,6 +17,7 @@ module de_register
 	 output logic de_ir3,
 	 output logic de_ir4,
 	 output logic de_ir5,
+	 output logic de_ir8,
 	 output logic de_ir11,
 	 output logic de_valid_out,
 	 output lc3b_word de_ir_out
@@ -44,6 +45,7 @@ ir IR //reference input/output names
 	.ir3(de_ir3),
 	.ir4(de_ir4),
 	.ir5(de_ir5),
+	.ir8(de_ir8),
 	.ir11(de_ir11)
 );
 
