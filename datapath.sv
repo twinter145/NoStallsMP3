@@ -108,7 +108,7 @@ fetch_logic fetch_logic
 (
 	.ir_9_11(wb_ir[11:9]),
 	.ir8(wb_ir[8]),
-	.cc(wb_cc),
+	.cc(cc_out),
 	.opcode(wb_control_sig.opcode),
 	.out(pcmux_sel),
 	.br_taken(br_taken)
