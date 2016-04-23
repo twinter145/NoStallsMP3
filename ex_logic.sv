@@ -32,7 +32,7 @@ lc3b_word alua_mux_out;
 lc3b_word adj11sext6mux_out;
 logic [31:0] multiplier_out;
 lc3b_word divider_out;
-logic [1:0] mult_stall_count;
+logic [2:0] mult_stall_count;
 logic [3:0] div_stall_count;
 lc3b_mux_sel lc3x_mux_sel;
 logic mult_clk_en;
@@ -57,6 +57,10 @@ begin
 	else if(mult_stall_count == 2)
 		mult_stall_count = 3;
 	else if(mult_stall_count == 3)
+		mult_stall_count = 4;
+	else if(mult_stall_count == 4)
+		mult_stall_count = 5;
+	else if(mult_stall_count == 5)
 		mult_stall_count = 0;
 	else if((ex_control_sig.mult_div == 1) && (ex_ir[5:3] == 3'b000))
 		mult_stall_count = 1;
@@ -104,7 +108,7 @@ end
 
 always_comb
 begin
-	if((ex_control_sig.mult_div == 1) && (ex_ir[5:3] == 3'b000) && (mult_stall_count != 3))
+	if((ex_control_sig.mult_div == 1) && (ex_ir[5:3] == 3'b000) && (mult_stall_count != 5))
 		ex_stall = 1;
 	else if((ex_control_sig.mult_div == 1) && (ex_ir[5:3] == 3'b001) && (div_stall_count != 7))
 		ex_stall = 1;

@@ -433,6 +433,9 @@ mux8 wb_mux
 	.c(wb_next_instr),
 	.d(wb_alu_out),
 	.e(counter_mux_out),
+	.g(16'b0),
+	.h(16'b0),
+	.i(16'b0),
 	.f(wbmux_out)
 );
 

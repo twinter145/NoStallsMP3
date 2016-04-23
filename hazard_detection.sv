@@ -42,9 +42,11 @@ register_scoreboard scoreboard
 	.br_taken(br_taken),
 	.br_taken_count(br_taken_count),
 	.br_stall_count(br_stall_count),
-	.write0(ctrl.uses_dest),
+	.load_wb(load_wb),
+	.load_de(load_de),
+	.uses_dest0(ctrl.uses_dest),
 	.index0(dest),
-	.write1(wb_ctrl.uses_dest),
+	.uses_dest1(wb_ctrl.uses_dest),
 	.index1(wb_dest),
 	.dataout(register_valid)
 );
