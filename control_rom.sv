@@ -131,7 +131,7 @@ begin
 			ctrl.aluop = alu_pass;
 			
 			//ctrl.uses_dest = 1'b1;
-			//ctrl.uses_sr1 = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_jmp: begin
@@ -228,7 +228,7 @@ begin
 			ctrl.adj11sext6mux_sel = 1;
 			
 			//ctrl.uses_dest = 1'b1;
-			//ctrl.uses_sr1 = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_sti: begin
@@ -241,7 +241,7 @@ begin
 			ctrl.aluop = alu_pass;
 			
 			//ctrl.uses_dest = 1'b1;
-			//ctrl.uses_sr1 = 1'b1;
+			ctrl.uses_sr1 = 1'b1;
 		end
 		
 		op_trap: begin
